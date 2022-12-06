@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BlazorStrap" Version="5.0.106"/>
-        <PackageReference Include="BlazorStrap.Extensions.BSDataTable" Version="1.5.1"/>
-        <PackageReference Include="BlazorStrap.Extensions.FluentValidation" Version="2.0.0"/>
+        <PackageReference Include="BlazorStrap" Version="5.0.106" />
+        <PackageReference Include="BlazorStrap.Extensions.BSDataTable" Version="1.5.1" />
+        <PackageReference Include="BlazorStrap.Extensions.FluentValidation" Version="2.0.0" />
     </ItemGroup>
 
 </Project>
