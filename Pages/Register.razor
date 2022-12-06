@@ -1,30 +1,23 @@
 ﻿@page "/Register"
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Registracija</PageTitle>
 <body id="page-top">
 <form class="col-8 container ">
-    <!-- Email input -->
-    <div class="form-outline mb-4 align-items-center">
-        <input type="email" id="form2Example1" class="form-control"/>
-        <label class="form-label" for="form2Example1">El.pašto adresas</label>
+    <div class="form-floating mb-4">
+        <input type="email" id="email" class="form-control" placeholder="Įveskite el.paštą"/>
+        <label class="form-label" for="email">El.pašto adresas</label>
     </div>
 
-
-    <!-- Password input -->
-    <div class="form-outline mb-4">
-        <input type="password" id="form2Example2" class="form-control"/>
-        <label class="form-label" for="form2Example2">Slaptažodis</label>
+    <div class="form-floating mb-4">
+        <input type="password" id="password" class="form-control" placeholder="Įveskite slaptažodį"/>
+        <label class="form-label" for="password">Slaptažodis</label>
+    </div>
+    
+    <div class="form-floating mb-4">
+        <input type="password" id="passwordrep" class="form-control" placeholder="Pakartokite slaptažodį"/>
+        <label class="form-label" for="passwordrep">Pakartokite slaptažodį</label>
     </div>
 
-    <div class="form-outline mb-4 align-items-center">
-        <input type="email" id="form2Example1" class="form-control"/>
-        <label class="form-label" for="form2Example1">Pakartokite slaptažodį</label>
-    </div>
-
-
-    <!-- Submit button -->
     <a class="btn btn-outline-dark mt-auto" href="#!">Registruotis</a>
-
-
 </form>
 </body>
