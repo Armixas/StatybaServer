@@ -10,6 +10,21 @@
         <PackageReference Include="BlazorStrap" Version="5.0.106" />
         <PackageReference Include="BlazorStrap.Extensions.BSDataTable" Version="1.5.1" />
         <PackageReference Include="BlazorStrap.Extensions.FluentValidation" Version="2.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="7.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql" Version="7.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
     </ItemGroup>
 
 </Project>

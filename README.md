@@ -1,3 +1,3 @@
 # StatybaServer
  
-This is university's small group project using server-side Blazor.
+This is university's group project using server-side Blazor.
