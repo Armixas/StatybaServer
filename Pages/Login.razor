@@ -1,17 +1,22 @@
-﻿@page "/Login"
+﻿@page "/login"
+@using StatybaServer.Authentication
+@inject UserAccountService userAccountService
+@inject IJSRuntime js
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager navManager
 
 <PageTitle>Prisijungimas</PageTitle>
 <body id="page-top">
 <form class="col-8 container ">
     <!-- Email input -->
     <div class="form-outline mb-4 align-items-center">
-        <input type="email" id="email" class="form-control"/>
+        <input @bind="_model.Username" type="email" id="email" class="form-control"/>
         <label class="form-label" for="email">El.pašto adresas</label>
     </div>
 
     <!-- Password input -->
     <div class="form-outline mb-4">
-        <input type="password" id="password" class="form-control"/>
+        <input @bind="_model.Password" type="password" id="password" class="form-control"/>
         <label class="form-label" for="password">Slaptažodis</label>
     </div>
 
@@ -32,7 +37,7 @@
     </div>
 
     <!-- Submit button -->
-    <a class="btn btn-outline-dark mt-auto" href="#!">Prisijungti</a>
+    <a @onclick="Authenticate" class="btn btn-outline-dark mt-auto" href="#!">Prisijungti</a>
 
     <!-- Register buttons -->
     <div class="text-center">
@@ -40,3 +45,31 @@
     </div>
 </form>
 </body>
+
+@code {
+
+    private class Model
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+    private Model _model = new Model();
+
+    private async Task Authenticate()
+    {
+        var userAccount = userAccountService.GetUserByName(_model.Username);
+        if(userAccount == null || userAccount.Password != _model.Password)
+        {
+            await js.InvokeVoidAsync("alert", "Netinkamas vartotojo vardas arba slaptažodis!");
+            return;
+        }
+        var authenStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        // saves value into session storage
+        await authenStateProvider.UpdateAuthenticationState(new UserSession
+        {
+            Username = userAccount.Username,
+            Role = userAccount.Role
+        });
+        navManager.NavigateTo("/", true);
+    }
+}

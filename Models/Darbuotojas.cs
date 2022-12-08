@@ -31,7 +31,7 @@ public partial class Darbuotojas
 
     public int FkPareigosidPareigos { get; set; }
 
-    public virtual ICollection<Algospriedas> Algosprieda { get; } = new List<Algospriedas>();
+    public virtual ICollection<Algospriedas> Algospriedas { get; } = new List<Algospriedas>();
 
     public virtual Pareigos FkPareigosidPareigosNavigation { get; set; } = null!;
 
