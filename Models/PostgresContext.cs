@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace StatybaServer.Models;
 
@@ -79,7 +81,7 @@ public partial class PostgresContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("pavadinimas");
 
-            entity.HasOne(d => d.FkDarbuotojasidDarbuotojasNavigation).WithMany(p => p.Algosprieda)
+            entity.HasOne(d => d.FkDarbuotojasidDarbuotojasNavigation).WithMany(p => p.Algospriedas)
                 .HasForeignKey(d => d.FkDarbuotojasidDarbuotojas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("gauna");

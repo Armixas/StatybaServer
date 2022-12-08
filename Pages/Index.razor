@@ -9,6 +9,14 @@
         <div class="row justify-content-center">
             <div class="text-center">
                 <h1 class="section-heading fw-bold bg-light">Statybinių prekių parduotuvė</h1>
+                <AuthorizeView>
+                    <Authorized>
+                        <h1>Sveiki, @context.User.Identity.Name!</h1>
+                    </Authorized>
+                    <NotAuthorized>
+                        <h1>Sveiki, svečias!</h1>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
 
             <div class="col-9">
@@ -94,3 +102,6 @@
     </div>
 </section>
 </body>
+@code{
+
+}

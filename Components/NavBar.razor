@@ -1,22 +1,52 @@
-﻿<BSNavbar Color="BSColor.Light" IsFixedTop="true">
+﻿@using StatybaServer.Authentication
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+
+<BSNavbar Color="BSColor.Light" IsFixedTop="true">
     <BSContainer Container="Container.Fluid">
         <Content>
             <BSNav Class="mb-lg-0 align-items-center">
                 <BSNavbarBrand Url="/">
                     <img src="Icons/statyba.png" width="175px"/>
                 </BSNavbarBrand>
-
+                
+                <AuthorizeView Roles="Administratorius">
+                    <Authorized>
+                        <BSNavItem Url="workerlist">Darbuotojų valdymas</BSNavItem>
+                    </Authorized>
+                </AuthorizeView>
+                
+                <AuthorizeView Roles="Administratorius,Darbuotojas">
+                    <Authorized>
+                        <BSNavItem Url="prodlist">Sandėlis</BSNavItem>
+                    </Authorized>
+                </AuthorizeView>
+                
                 <BSNavItem Url="shop">Parduotuvė</BSNavItem>
                 <BSNavItem Url="cart">Krepšelis</BSNavItem>
-                <BSNavItem Url="prodlist">Sandėlis</BSNavItem>
-                <BSNavItem Url="workerlist">Darbuotojų valdymas</BSNavItem>
+                
             </BSNav>
         </Content>
-
         <Content>
             <BSNav Class="mb-lg-0 align-items-center">
-                <BSNavItem Url="login">Prisijungti</BSNavItem>
+                <AuthorizeView>
+                    <Authorized>
+                        <BSNavItem @onclick="Logout">Atsijungti</BSNavItem>
+                    </Authorized>
+                    <NotAuthorized>
+                        <BSNavItem Url="login">Prisijungti</BSNavItem>
+                    </NotAuthorized>
+                </AuthorizeView>
             </BSNav>
         </Content>
     </BSContainer>
 </BSNavbar>
+
+@code {
+    private async Task Logout()
+    {
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(null);
+        NavManager.NavigateTo("/", true);
+    }
+}
