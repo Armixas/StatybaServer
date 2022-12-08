@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Darbuotojas
+public class Darbuotojas
 {
     public string? PrisijungimoVardas { get; set; }
 
     public int? Kodas { get; set; }
 
     public string? Vardas { get; set; }
+    public string? Role { get; set; }
 
     public string? Pavarde { get; set; }
 
@@ -36,6 +34,4 @@ public partial class Darbuotojas
     public virtual Pareigos FkPareigosidPareigosNavigation { get; set; } = null!;
 
     public virtual Skyrius FkSkyriusidSkyriusNavigation { get; set; } = null!;
-
-    public virtual ICollection<Tvarko> Tvarkos { get; } = new List<Tvarko>();
 }

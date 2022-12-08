@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Turi
+public class Turi
 {
     public int FkPrekeidPreke { get; set; }
 

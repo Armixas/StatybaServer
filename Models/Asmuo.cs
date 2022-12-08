@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Asmuo
+public class Asmuo
 {
     public int IdAsmuo { get; set; }
 

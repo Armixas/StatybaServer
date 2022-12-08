@@ -6,6 +6,12 @@
 <!-- Section-->
 
 <h1>Darbuotojai</h1>
+<AuthorizeView>
+    <Authorized>
+        <h1>Sveiki, @context.User.Identity.Name!</h1>
+    </Authorized>
+</AuthorizeView>
+
 <table class="table">
     <thead>
     <tr>

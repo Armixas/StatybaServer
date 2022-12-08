@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Uzsakymas
+public class Uzsakymas
 {
     public DateOnly? Data { get; set; }
 

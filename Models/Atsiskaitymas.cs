@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Atsiskaitymas
+public class Atsiskaitymas
 {
     public int IdAtsiskaitymas { get; set; }
 

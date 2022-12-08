@@ -1,48 +1,25 @@
 ﻿@page "/login"
 @using StatybaServer.Authentication
-@inject UserAccountService userAccountService
-@inject IJSRuntime js
-@inject AuthenticationStateProvider authStateProvider
-@inject NavigationManager navManager
+@inject WorkerAccountService WorkerAccountService
+@inject IJSRuntime Js
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavManager
 
 <PageTitle>Prisijungimas</PageTitle>
 <body id="page-top">
 <form class="col-8 container ">
-    <!-- Email input -->
+    
     <div class="form-outline mb-4 align-items-center">
-        <input @bind="_model.Username" type="email" id="email" class="form-control"/>
-        <label class="form-label" for="email">El.pašto adresas</label>
+        <input @bind="_model.Username" type="text" id="username" class="form-control"/>
+        <label class="form-label" for="username">Prisijungimo vardas</label>
     </div>
 
-    <!-- Password input -->
     <div class="form-outline mb-4">
         <input @bind="_model.Password" type="password" id="password" class="form-control"/>
         <label class="form-label" for="password">Slaptažodis</label>
     </div>
 
-    <!-- 2 column grid layout for inline styling -->
-    <div class="row mb-4">
-        <div class="col d-flex justify-content-center">
-            <!-- Checkbox -->
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="checkinfo" checked/>
-                <label class="form-check-label" for="checkinfo">Išsaugoti duomenis</label>
-            </div>
-        </div>
-
-        <div class="col">
-            <!-- Simple link -->
-            <a href="#!">Pamiršote slaptažodį?</a>
-        </div>
-    </div>
-
-    <!-- Submit button -->
-    <a @onclick="Authenticate" class="btn btn-outline-dark mt-auto" href="#!">Prisijungti</a>
-
-    <!-- Register buttons -->
-    <div class="text-center">
-        <p>Neturite paskyros? <a href="Register">Registruotis</a></p>
-    </div>
+    <a @onclick="Authenticate" class="btn btn-outline-dark mt-auto">Prisijungti</a>
 </form>
 </body>
 
@@ -53,23 +30,25 @@
         public string Username { get; set; }
         public string Password { get; set; }
     }
-    private Model _model = new Model();
+
+    private readonly Model _model = new();
 
     private async Task Authenticate()
     {
-        var userAccount = userAccountService.GetUserByName(_model.Username);
-        if(userAccount == null || userAccount.Password != _model.Password)
+        var workerAccount = WorkerAccountService.GetUserByName(_model.Username);
+        if (workerAccount == null || workerAccount.Slaptazodis != _model.Password)
         {
-            await js.InvokeVoidAsync("alert", "Netinkamas vartotojo vardas arba slaptažodis!");
+            await Js.InvokeVoidAsync("Klaida", "Netinkamas vartotojo vardas arba slaptažodis!");
             return;
         }
-        var authenStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
-        // saves value into session storage
+        var authenStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+    // saves value into session storage
         await authenStateProvider.UpdateAuthenticationState(new UserSession
         {
-            Username = userAccount.Username,
-            Role = userAccount.Role
+            Username = workerAccount.Slaptazodis,
+            Role = workerAccount.Role
         });
-        navManager.NavigateTo("/", true);
+        NavManager.NavigateTo("/", true);
     }
+
 }

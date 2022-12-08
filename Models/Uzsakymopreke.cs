@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Uzsakymopreke
+public class Uzsakymopreke
 {
     public decimal? Suma { get; set; }
 

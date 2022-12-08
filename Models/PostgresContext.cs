@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace StatybaServer.Models;
 
@@ -45,8 +41,6 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Turi> Turis { get; set; }
 
-    public virtual DbSet<Tvarko> Tvarkos { get; set; }
-
     public virtual DbSet<Uzsakymas> Uzsakymas { get; set; }
 
     public virtual DbSet<Uzsakymopreke> Uzsakymoprekes { get; set; }
@@ -54,7 +48,9 @@ public partial class PostgresContext : DbContext
     public virtual DbSet<Zyma> Zymas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=jamalas");
+    {
+        optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=jamalas");
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -162,6 +158,9 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Vardas)
                 .HasMaxLength(255)
                 .HasColumnName("vardas");
+            entity.Property(e => e.Role)
+                .HasMaxLength(30)
+                .HasColumnName("role");
 
             entity.HasOne(d => d.FkPareigosidPareigosNavigation).WithMany(p => p.Darbuotojas)
                 .HasForeignKey(d => d.FkPareigosidPareigos)
@@ -344,21 +343,6 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.FkPrekeidPreke)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("turi");
-        });
-
-        modelBuilder.Entity<Tvarko>(entity =>
-        {
-            entity.HasKey(e => new { e.FkDarbuotojasidDarbuotojas, e.FkDarbuotojasidDarbuotojas1 }).HasName("tvarko_pkey");
-
-            entity.ToTable("tvarko");
-
-            entity.Property(e => e.FkDarbuotojasidDarbuotojas).HasColumnName("fk_darbuotojasid_darbuotojas");
-            entity.Property(e => e.FkDarbuotojasidDarbuotojas1).HasColumnName("fk_darbuotojasid_darbuotojas1");
-
-            entity.HasOne(d => d.FkDarbuotojasidDarbuotojasNavigation).WithMany(p => p.Tvarkos)
-                .HasForeignKey(d => d.FkDarbuotojasidDarbuotojas)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("tvarko");
         });
 
         modelBuilder.Entity<Uzsakymas>(entity =>

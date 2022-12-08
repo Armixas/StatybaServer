@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace StatybaServer.Models;
 
-namespace StatybaServer.Models;
-
-public partial class Pareigos
+public class Pareigos
 {
     public string? Pavadinimas { get; set; }
 

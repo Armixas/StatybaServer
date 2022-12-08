@@ -9,22 +9,22 @@
                 <BSNavbarBrand Url="/">
                     <img src="Icons/statyba.png" width="175px"/>
                 </BSNavbarBrand>
-                
+
                 <AuthorizeView Roles="Administratorius">
                     <Authorized>
                         <BSNavItem Url="workerlist">Darbuotojų valdymas</BSNavItem>
                     </Authorized>
                 </AuthorizeView>
-                
+
                 <AuthorizeView Roles="Administratorius,Darbuotojas">
                     <Authorized>
                         <BSNavItem Url="prodlist">Sandėlis</BSNavItem>
                     </Authorized>
                 </AuthorizeView>
-                
+
                 <BSNavItem Url="shop">Parduotuvė</BSNavItem>
                 <BSNavItem Url="cart">Krepšelis</BSNavItem>
-                
+
             </BSNav>
         </Content>
         <Content>
@@ -43,10 +43,12 @@
 </BSNavbar>
 
 @code {
+
     private async Task Logout()
     {
         var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
         await customAuthStateProvider.UpdateAuthenticationState(null);
         NavManager.NavigateTo("/", true);
     }
+
 }

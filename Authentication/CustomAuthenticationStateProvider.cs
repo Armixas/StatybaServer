@@ -7,12 +7,13 @@ namespace StatybaServer.Authentication;
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly ProtectedSessionStorage _sessionStorage;
-    private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+    private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
 
     public CustomAuthenticationStateProvider(ProtectedSessionStorage sessionStorage)
     {
         _sessionStorage = sessionStorage;
     }
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
@@ -23,10 +24,10 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
                 return await Task.FromResult(new AuthenticationState(_anonymous));
             var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
             {
-                new Claim(ClaimTypes.Name, userSession.Username),
-                new Claim(ClaimTypes.Role, userSession.Role)
+                new(ClaimTypes.Name, userSession.Username),
+                new(ClaimTypes.Role, userSession.Role)
             }, "CustomAuth"));
-        
+
             return await Task.FromResult(new AuthenticationState(claimsPrincipal));
         }
         catch
@@ -44,8 +45,8 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             await _sessionStorage.SetAsync("UserSession", userSession);
             claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
             {
-                new Claim(ClaimTypes.Name, userSession.Username),
-                new Claim(ClaimTypes.Role, userSession.Role)
+                new(ClaimTypes.Name, userSession.Username),
+                new(ClaimTypes.Role, userSession.Role)
             }));
         }
         else
@@ -53,6 +54,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             await _sessionStorage.DeleteAsync("UserSession");
             claimsPrincipal = _anonymous;
         }
+
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
     }
 }
