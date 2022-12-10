@@ -1,5 +1,7 @@
 ﻿@page "/login"
 @using StatybaServer.Authentication
+@using System.Reflection.Metadata
+@using BlazorStrap.Utilities
 @inject WorkerAccountService WorkerAccountService
 @inject IJSRuntime Js
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -9,22 +11,36 @@
 <body id="page-top">
 <form class="col-8 container ">
     
-    <div class="form-outline mb-4 align-items-center">
-        <input @bind="_model.Username" type="text" id="username" class="form-control"/>
+    <div class="form-floating mb-4 align-items-center">
+        <input @bind="_model.Username" type="text" id="username" class="form-control" placeholder="Prisijungimo vardas"/>
         <label class="form-label" for="username">Prisijungimo vardas</label>
     </div>
 
-    <div class="form-outline mb-4">
-        <input @bind="_model.Password" type="password" id="password" class="form-control"/>
+    <div class="form-floating mb-4">
+        <input @bind="_model.Password" type="password" id="password" class="form-control" placeholder="Slaptažodis"/>
         <label class="form-label" for="password">Slaptažodis</label>
     </div>
+    
+    <BSButton Color="BSColor.Primary" @onclick="Authenticate" Target="modal">Prisijungti</BSButton>
+      @if (_showSpinner)
+        {
+            <BSSpinner Color="BSColor.Dark"/>
+        }
 
-    <a @onclick="Authenticate" class="btn btn-outline-dark mt-auto">Prisijungti</a>
+      <BSModal DataId="modal"  Size="Size.Small">
+          <Header>Klaida</Header>
+          <Content>Neteisingas prisijungimo vardas arba slaptažodis!</Content>
+          <Footer Context="modal">
+              <BSButton MarginStart="Margins.Auto" Color="BSColor.Primary">Supratau</BSButton>
+          </Footer>
+      </BSModal>
+
 </form>
 </body>
 
-@code {
-
+@code {// TODO: parodyti modal TIK PO neteisingo prisijungimo
+    
+    private bool _showSpinner = false;
     private class Model
     {
         public string Username { get; set; }
@@ -32,13 +48,14 @@
     }
 
     private readonly Model _model = new();
-
+    
     private async Task Authenticate()
     {
+        _showSpinner = true;
         var workerAccount = WorkerAccountService.GetUserByName(_model.Username);
         if (workerAccount == null || workerAccount.Slaptazodis != _model.Password)
         {
-            await Js.InvokeVoidAsync("Klaida", "Netinkamas vartotojo vardas arba slaptažodis!");
+            _showSpinner = false;
             return;
         }
         var authenStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
@@ -50,5 +67,4 @@
         });
         NavManager.NavigateTo("/", true);
     }
-
 }

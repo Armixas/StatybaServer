@@ -12,11 +12,10 @@
                 <h1 class="section-heading fw-bold bg-light">Statybinių prekių parduotuvė</h1>
                 <AuthorizeView>
                     <Authorized>
-                        <h1>Sveiki, @context.User.Identity.Name!</h1>
+                        <BSToast Color="BSColor.Primary">
+                            <Content>Sveiki, @context.User.Identity.Name!</Content>
+                        </BSToast>
                     </Authorized>
-                    <NotAuthorized>
-                        <h1>Sveiki, svečias!</h1>
-                    </NotAuthorized>
                 </AuthorizeView>
             </div>
 

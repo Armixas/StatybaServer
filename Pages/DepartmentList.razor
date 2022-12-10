@@ -1,0 +1,118 @@
+﻿@page "/departmentlist"
+@using StatybaServer.Models
+@using Microsoft.EntityFrameworkCore
+@attribute [Authorize(Roles = "Administratorius")]
+@inject IBlazorStrap BlazorStrap
+@inject Microsoft.EntityFrameworkCore.IDbContextFactory<PostgresContext> ContextFactory;
+
+<h3>Sandėliai</h3>
+<BSButton Target="modalSandelis" Size="Size.Medium" Color="BSColor.Primary">Pridėti sandėlį</BSButton>
+<BSDataTable FetchItems="FetchWarehouse" Context="s" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.IdSandelis))">ID</BSDataTableHead>
+        <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.Salis))">Šalis</BSDataTableHead>
+        <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.Miestas))">Miestas</BSDataTableHead>
+        <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.Adresas))">Adresas</BSDataTableHead>
+        <BSDataTableHead TValue="string">Redagavimas</BSDataTableHead>
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@s.IdSandelis</BSTD>
+        <BSTD>@s.Salis</BSTD>
+        <BSTD>@s.Miestas</BSTD>
+        <BSTD>@s.Adresas</BSTD>
+        <BSTD>
+            <BSButton Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+        </BSTD>
+    </BSDataTableRow>
+    <BSTFoot>
+        <BSButton></BSButton>
+    </BSTFoot>
+    </Body>
+</BSDataTable>
+<h3>Skyriai</h3>
+<BSButton Size="Size.Medium" Color="BSColor.Primary">Pridėti skyrių</BSButton>
+<BSDataTable FetchItems="FetchDepartment" Context="sk" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Skyrius" Column="@(nameof(Skyrius.IdSkyrius))">ID</BSDataTableHead>
+        <BSDataTableHead TValue="string">Skyriaus pavadinimas</BSDataTableHead>
+        <BSDataTableHead TValue="Skyrius" Column="@(nameof(Skyrius.Pavadinimas))">Skyriaus pavadinimas</BSDataTableHead>
+        <BSDataTableHead TValue="string">Redagavimas</BSDataTableHead>
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@sk.IdSkyrius</BSTD>
+        <BSTD>@GetWarehouseDataAsync(sk.FkSandelisidSandelis).Result</BSTD>
+        <BSTD>@sk.Pavadinimas</BSTD>
+        <BSTD>
+            <BSButton Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+        </BSTD>
+    </BSDataTableRow>
+    </Body>
+</BSDataTable>
+
+<BSModal DataId="modalSandelis" >
+    <BSForm Model="_modelS">
+        <BSModalHeader>Naujo sandėlio forma</BSModalHeader>
+        <BSModalContent>
+            <div class="mb-3">
+                <BSLabel>Šalis</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelS.Salis" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Miestas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelS.Miestas" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Adresas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelS.Adresas" />
+            </div>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalSandelis">Atšaukti</BSButton>
+            <BSButton Color="BSColor.Primary">Sukurti sandėlį</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
+
+@code {
+    BSModal refModal;
+    private Sandelis _modelS = new Sandelis();
+    private Skyrius _modelSk = new Skyrius();
+    
+
+
+    private Task AddSandelis()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Console.WriteLine(_modelS.ToString());
+        pgContext.Sandelis.Add(_modelS);
+        return Task.CompletedTask;
+    }
+
+    private async Task<(IEnumerable<Sandelis>, int)> FetchWarehouse(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Sandelis.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    private async Task<(IEnumerable<Skyrius>, int)> FetchDepartment(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Skyrius.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+
+    private async Task<string> GetWarehouseDataAsync(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Sandelis w = await pgContext.Sandelis.FirstAsync(s => s.IdSandelis == id);
+        return $"{w.Salis}, {w.Miestas}, {w.Adresas}";
+    }
+}

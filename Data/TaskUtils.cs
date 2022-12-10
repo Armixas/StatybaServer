@@ -12,7 +12,7 @@ public class TaskUtils
         using var sha512 = SHA512.Create();
 
         var bytes =
-            Encoding.UTF8.GetBytes($"{password}--{username}");
+            Encoding.UTF8.GetBytes($"4{password}--{username}2");
         var hashBytes = sha512.ComputeHash(bytes);
 
         var stringBuilder = new StringBuilder();
