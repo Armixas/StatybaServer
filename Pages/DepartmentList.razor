@@ -84,12 +84,11 @@
     
 
 
-    private Task AddSandelis()
+    private async Task AddSandelis()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         Console.WriteLine(_modelS.ToString());
-        pgContext.Sandelis.Add(_modelS);
-        return Task.CompletedTask;
+        await pgContext.Sandelis.AddAsync(_modelS);
     }
 
     private async Task<(IEnumerable<Sandelis>, int)> FetchWarehouse(DataRequest dataRequest)
