@@ -1,0 +1,31 @@
+﻿@page "/product/{id:int}"
+
+@inject IViewProduct viewProduct
+
+<div>
+	<img src="@preke.Nuotrauka" />
+	<br />
+	@preke.Pavadinimas
+	<br />
+	@preke.VienetoKaina.ToString()
+	<br />
+	<br />
+	@preke.Aprasymas
+
+</div>
+<NavLink href="/grybas">Atgalios</NavLink>
+
+@code {
+	private Preke preke;
+
+	[Parameter]
+	public int Id { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (Id > 0)
+			preke = viewProduct.Execute(Id);
+	}
+}

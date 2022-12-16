@@ -1,0 +1,21 @@
+﻿@page "/grybas"
+
+@inject ISearchProduct SearchProduct
+
+<h3>Paieška</h3>
+
+<ul>
+	@foreach(var prod in products)
+	{
+		<li>@prod.Pavadinimas</li>
+	}
+</ul>
+
+@code {
+	private IEnumerable<Preke> products;
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		product = SearchProduct.Execute();
+	}
+}

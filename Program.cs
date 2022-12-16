@@ -1,4 +1,5 @@
 using BlazorStrap;
+using eshop.Uses.SearchProductScreen;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,9 @@ builder.Services.AddSingleton<WorkerAccountService>();
 builder.Services.AddDbContextFactory<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddBlazorStrap();
-
+builder.Services.AddTransient<eshop.Uses.PluginInterfaces.DataStore.IProductRepository, eShop.DataStore.ProductRepository>();
+builder.Services.AddTransient<eshop.Uses.SearchProductScreen.ISearchProduct, SearchProduct>();
+builder.Services.AddTransient<eshop.Uses.SearchProductScreen.IViewProduct, ViewProduct>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

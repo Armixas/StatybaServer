@@ -1,33 +1,62 @@
-﻿@page "/prodlist"
-@attribute [Authorize(Roles = "Administratorius,Darbuotojas")]
+﻿@page "/grybas"
+
 <PageTitle>Sandėlis</PageTitle>
-<body id="page-top">
-<!-- Section-->
-<h1>Sandėlis</h1>
-<table class="table">
-    <thead>
-    <tr>
-        <th>Prekė</th>
-        <th>Kiekis</th>
-        <th>Aprašymas</th>
-        <th>Prekės kodas</th>
-        <th>Redagavimas</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Vamzdis</td>
-        <td>
-            <button>-</button>
-            5
-            <button>+</button>
-        </td>
-        <td>Geras</td>
-        <td>RT-55901</td>
-        <td>
-            <button>Redaguoti</button>
-        </td>
-    </tr>
-    </tbody>
+@inject ISearchProduct SearchProduct
+
+<!--<h3>Paieška</h3>-->
+
+<SearchBarComponent OnSearch="HandleSearch"></SearchBarComponent>
+
+
+<table>
+	<thead>
+		<tr>
+		<th>
+			Pavadinimas
+		</th>
+		<th>
+			Kaina
+		</th><th>
+			Kiekis
+		</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if(products != null && products.Count() > 0)
+		{
+			@foreach (var product in products)
+			{
+				<ProductItemComponent Preke="product"></ProductItemComponent>
+			}
+		}
+		else
+		{
+			<tr>
+				<td colspan="3">
+					Nera
+				</td>
+			</tr>
+		}
+
+	</tbody>
 </table>
-</body>
+<ul>
+	@foreach (var prod in products)
+	{
+			<li>@prod.Pavadinimas <img src=@prod.Nuotrauka style="width:200px; padding:10px;"></li>
+	}
+</ul>
+
+@code {
+	private IEnumerable<Preke> products;
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		products = SearchProduct.Execute("");
+	}
+
+	private void HandleSearch(string filter)
+	{
+		products = SearchProduct.Execute(filter);
+	}
+}

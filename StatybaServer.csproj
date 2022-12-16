@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -7,9 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Content Remove="Pages\Search.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="BlazorStrap" Version="5.0.106" />
         <PackageReference Include="BlazorStrap.Extensions.BSDataTable" Version="1.5.1" />
         <PackageReference Include="BlazorStrap.Extensions.FluentValidation" Version="2.0.0" />
+        <PackageReference Include="EntityFramework6.Npgsql" Version="6.4.3" />
         <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
@@ -31,6 +36,24 @@
 
     <ItemGroup>
         <Folder Include="Services\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\eShop.Core\eShop.Core.csproj" />
+      <ProjectReference Include="..\eShop.DataStore\eShop.DataStore.csproj" />
+      <ProjectReference Include="..\eshop.Uses\eshop.Uses.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Pages\Search.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Pages\Search.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Pages\Search.razor" />
     </ItemGroup>
 
 </Project>
