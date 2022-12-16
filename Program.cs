@@ -1,5 +1,6 @@
 using BlazorStrap;
 using eshop.Uses.SearchProductScreen;
+using eShop.DataStore.Read;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,9 @@ builder.Services.AddBlazorStrap();
 builder.Services.AddTransient<eshop.Uses.PluginInterfaces.DataStore.IProductRepository, eShop.DataStore.ProductRepository>();
 builder.Services.AddTransient<eshop.Uses.SearchProductScreen.ISearchProduct, SearchProduct>();
 builder.Services.AddTransient<eshop.Uses.SearchProductScreen.IViewProduct, ViewProduct>();
+builder.Services.AddDbContext<ReadContext>(
+    o => o.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
