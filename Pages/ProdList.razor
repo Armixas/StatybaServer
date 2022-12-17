@@ -8,7 +8,7 @@
 
 
 <h3>Prekės</h3>
-<BSButton Target="modalPreke"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti prekę</BSButton>
+<BSButton Target="modalPreke" OnClick="@(() => { _modelW = new Preke();})"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti prekę</BSButton>
 <BSDataTable FetchItems="FetchPrekes" Context="p" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.IdPreke))">ID</BSDataTableHead>
@@ -116,7 +116,7 @@
         {
 
 
-
+            
             await pgContext.Prekes.AddAsync(_modelW);
             pgContext.SaveChanges();
 
@@ -125,11 +125,11 @@
         }
         else
         {
-           /* pgContext.Entry(_modelW).State = EntityState.Modified;
+            await Task.CompletedTask;
+            pgContext.Entry(_modelW).State = EntityState.Modified;
             pgContext.SaveChanges();
-
             BlazorStrap.ForwardClick("modalPreke");
-            NavManager.NavigateTo("/prodList", true);*/
+            NavManager.NavigateTo("/prodList", true);
         }
 
     }
@@ -147,15 +147,5 @@
         return await Task.FromResult((data, count));
     }
     #endregion
-    private void UpdatePrekes(int id)
-    {
-        using PostgresContext pgContext = ContextFactory.CreateDbContext();
-        var prekes = pgContext.Prekes.First(d => d.IdPreke == id);
-        _modelW = (Preke)prekes;
-        pgContext.Entry(prekes).State = EntityState.Modified;
-        pgContext.SaveChanges();
-
-        BlazorStrap.ForwardClick("modalPreke");
-        NavManager.NavigateTo("/prodList", true);
-    }
+    
 }

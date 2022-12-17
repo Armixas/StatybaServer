@@ -13,11 +13,11 @@ public class Darbuotojas
 
     public DateOnly? IdarbinimoData { get; set; }
 
-    public int? Stazas { get; set; }
+    public int Stazas { get; set; }
 
     public string? Slaptazodis { get; set; }
 
-    public decimal? ValandinisUzdarbis { get; set; }
+    public decimal ValandinisUzdarbis { get; set; }
 
     public string? PakeitimaiSesijoje { get; set; }
 
