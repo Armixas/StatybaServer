@@ -1,6 +1,5 @@
 using BlazorStrap;
-using eshop.Uses.SearchProductScreen;
-using eShop.DataStore.Read;
+using StatybaServer.Controls;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +20,12 @@ builder.Services.AddSingleton<WorkerAccountService>();
 builder.Services.AddDbContextFactory<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddBlazorStrap();
-builder.Services.AddTransient<eshop.Uses.PluginInterfaces.DataStore.IProductRepository, eShop.DataStore.ProductRepository>();
-builder.Services.AddTransient<eshop.Uses.SearchProductScreen.ISearchProduct, SearchProduct>();
-builder.Services.AddTransient<eshop.Uses.SearchProductScreen.IViewProduct, ViewProduct>();
-builder.Services.AddDbContext<ReadContext>(
-    o => o.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-    );
+builder.Services.AddTransient<IProductRepository, ProductRepository>();
+builder.Services.AddTransient<ISearchProduct, SearchProduct>();
+builder.Services.AddTransient<IViewProduct, ViewProduct>();
+//builder.Services.AddDbContext<ReadContext>(
+//    o => o.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+//    );
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

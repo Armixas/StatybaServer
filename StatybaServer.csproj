@@ -36,13 +36,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="PluginInterfaces\DataStore\" />
+        <Folder Include="SearchProductScreen\" />
         <Folder Include="Services\" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\eShop.Core\eShop.Core.csproj" />
-      <ProjectReference Include="..\eShop.DataStore\eShop.DataStore.csproj" />
-      <ProjectReference Include="..\eshop.Uses\eshop.Uses.csproj" />
+      
     </ItemGroup>
 
     <ItemGroup>

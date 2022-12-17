@@ -1,7 +1,9 @@
 ﻿@page "/grybas"
 
 <PageTitle>Sandėlis</PageTitle>
-@inject ISearchProduct SearchProduct
+@using StatybaServer.Controls;
+@using StatybaServer.Models;
+@inject StatybaServer.Controls.ISearchProduct SearchProduct
 
 <!--<h3>Paieška</h3>-->
 
@@ -43,7 +45,7 @@
 <ul>
 	@foreach (var prod in products)
 	{
-			<li>@prod.pavadinimas <img src=@prod.nuotrauka style="width:200px; padding:10px;"></li>
+			<li>@prod.Pavadinimas <img src=@prod.Nuotrauka style="width:200px; padding:10px;"></li>
 	}
 </ul>
 
