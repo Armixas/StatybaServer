@@ -1,0 +1,79 @@
+﻿@page "/bootstrapPrekes"
+@inject IBlazorStrap BlazorStrap
+@inject NavigationManager NavManager
+@inject IDbContextFactory<PostgresContext> ContextFactory;
+@using BlazorStrap
+@using StatybaServer.Models
+@using Microsoft.EntityFrameworkCore
+@using StatybaServer.Data
+
+
+<h3>pyfaardas</h3>
+
+<section class="py-5">
+<div class="container px-4 px-lg-5 mt-5">
+<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+
+@foreach (Preke p in _prekes)
+    {
+        
+        <div class="col-4">
+            <BSCard CardType="CardType.Card">
+
+                <BSCard CardType="CardType.Body">
+                    <BSCard CardType="CardType.Image" src=@p.Nuotrauka alt="Card image cap"/>
+                    <BSCard CardType="CardType.Title">@p.Pavadinimas</BSCard>
+                    <BSCard CardType="CardType.Text">
+                        @p.Aprasymas
+                        <h2>@p.VienetoKaina$</h2>
+                    </BSCard>
+                    <BSButton Color="BSColor.Primary">Prideti i krepseli</BSButton>
+                </BSCard>
+            </BSCard>
+        </div>
+        
+    }
+</div>
+    </div>
+    </section> 
+
+   
+
+
+
+
+
+
+
+
+@code {
+   
+    private List<Preke> _prekes = new List<Preke>();
+    
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        _prekes = pgContext.Prekes.ToList();
+       
+    }
+    
+    private async Task<IEnumerable<Preke>> ForPrekes(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Prekes.ToList();
+
+        return await Task.FromResult(data);
+    }
+    private async Task<(IEnumerable<Preke>, int)> FetchPrekes(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Prekes.ToList();
+        _prekes = pgContext.Prekes.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+   
+}
