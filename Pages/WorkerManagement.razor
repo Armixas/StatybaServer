@@ -41,9 +41,27 @@
     </BSForm>
 </BSModal>
 
+<h3>Algos priedai</h3>
+<BSDataTable FetchItems="FetchAlgos" Context="b" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Aprasymas))">Aprasymas</BSDataTableHead>
+        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Data))">Kada suteiktas algos priedas</BSDataTableHead>
+        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Dydis))">Priedo dydis</BSDataTableHead>
+        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.FkDarbuotojasidDarbuotojas))">Darbuotojo vardas ir stazas</BSDataTableHead>
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@b.Aprasymas</BSTD>
+        <BSTD>@b.Data</BSTD>
+        <BSTD>@b.Dydis</BSTD>
+        <BSTD>@GetDarbuotojoData(b.FkDarbuotojasidDarbuotojas).Result</BSTD>
+    </BSDataTableRow>
+    </Body>
+</BSDataTable>
 <h3>Darbuotojai</h3>
 
 <BSButton Target="modalDarbuotojas" Size="Size.Medium" Color="BSColor.Primary">Pridėti darbuotoją</BSButton>
+ <BSButton Target="modalAlgosPriedas" Size="Size.Medium" Color="BSColor.Primary">Skaičiuoti algos priedą</BSButton>
 <BSDataTable FetchItems="FetchWorkers" Context="d" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.IdDarbuotojas))">ID</BSDataTableHead>
@@ -64,15 +82,56 @@
         <BSTD>@d.Stazas</BSTD>
         <BSTD>
             <BSButton OnClick="@(() => {RemoveDarbuotojas(@d.IdDarbuotojas);})"
-                                  Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
-            <BSButton href="form" Size="Size.Small" Color="BSColor.Primary">Skaičiuoti algos priedą</BSButton>
-            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+                      Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton Target="modalDarbuotojasUpdate" Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
         </BSTD>
     </BSDataTableRow>
     </Body>
 </BSDataTable>
+
+<BSModal DataId="modalAlgosPriedas" OnShow="@(() => {_modelB = new Algospriedas();
+                                                        _workers = WorkerSelection().Result;
+                                                       
+                                            })">
+    <BSForm Model="_modelW" OnSubmit="AddAlgosPriedas">
+        <BSModalHeader>Naujo algos priedo kurimas</BSModalHeader>
+        <BSModalContent>
+            <div class="mb-3">
+                <BSLabel>Skyrius</BSLabel>
+                <BSInput InputType="InputType.Select" @bind-Value="_modelB.FkDarbuotojasidDarbuotojas">
+                    @for(int i=0; i < _workers.Count; i++)
+                    {
+                        <option value="@_workers[i].IdDarbuotojas">
+                            @_workers[i].Vardas
+                        </option>
+                       
+                    }
+                </BSInput>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Pavadinimas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelB.Pavadinimas"/>
+            </div>
+            
+            
+            <div class="mb-3">
+                <BSLabel>Data</BSLabel>
+                <BSInput InputType="InputType.Date" @bind-Value="_modelB.Data"/>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Aparasymas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelB.Aprasymas"/>
+            </div>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalAlgosPriedas">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti algos prieda</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
+
 <BSModal DataId="modalDarbuotojas" OnShow="@(() => {_modelW = new Darbuotojas();
-                                                   _deparments = DepartmentSelection().Result;
+                                                       _deparments = DepartmentSelection().Result;
                                                        _positions = PositonSelection().Result;
                                            })">
     <BSForm Model="_modelW" OnSubmit="AddDarbuotojas">
@@ -135,11 +194,16 @@
     </BSForm>
 </BSModal>
 
+
+
+
 @code {
     private List<Skyrius> _deparments = new List<Skyrius>();
+    private List<Darbuotojas> _workers = new List<Darbuotojas>();
     private List<Pareigos> _positions = new List<Pareigos>();
     private Darbuotojas _modelW = new Darbuotojas();
     private Pareigos _modelP = new Pareigos();
+    private Algospriedas _modelB = new Algospriedas();
 
     private Task RemoveDarbuotojas(int id)
     {
@@ -148,7 +212,7 @@
         var darbuotojas = pgContext.Darbuotojas.First(d => d.IdDarbuotojas == id);
 
         pgContext.Darbuotojas.Remove(darbuotojas);
-
+        
         pgContext.SaveChanges();
 
         NavManager.NavigateTo("/workermanagement", true);
@@ -164,6 +228,24 @@
         string warehouse = $"{sand.Miestas}, {sand.Adresas}";
         return await Task.FromResult(warehouse);
     }
+    
+    private async Task<int> GetWorkersStazas(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Darbuotojas sand = pgContext.Darbuotojas.Where(s => s.IdDarbuotojas == id).First();
+        int warehouse = sand.Stazas;
+        return await Task.FromResult(warehouse);
+    }
+    
+    private async Task<decimal> GetWorkersValandinis(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Darbuotojas sand = pgContext.Darbuotojas.Where(s => s.IdDarbuotojas == id).First();
+        decimal warehouse = sand.ValandinisUzdarbis;
+        return await Task.FromResult(warehouse);
+    }
+    
+    
 
     private async Task AddDarbuotojas()
     {
@@ -184,6 +266,35 @@
         BlazorStrap.ForwardClick("modalDarbuotojas");
         NavManager.NavigateTo("/workermanagement", true);
     }
+
+    private async Task AddAlgosPriedas()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        int stazas = GetWorkersStazas(_modelB.FkDarbuotojasidDarbuotojas).Result;
+        decimal valandinis =  GetWorkersValandinis(_modelB.FkDarbuotojasidDarbuotojas).Result;
+        
+        if (stazas == 0)
+        {
+            stazas += 5;
+        }
+        else if(stazas > 5)
+        {
+            stazas += 10;
+        }
+        else if (stazas > 10)
+        {
+            stazas += 15;
+        }
+        decimal priedas = stazas * valandinis;
+        _modelB.Dydis = priedas;
+        _modelB.Data = DateOnly.FromDateTime(DateTime.Now);
+        Console.WriteLine(_modelB.Dydis);
+        await pgContext.Algospriedas.AddAsync(_modelB);
+        pgContext.SaveChanges();
+        
+        BlazorStrap.ForwardClick("modalAlgosPriedas");
+        NavManager.NavigateTo("/workermanagement", true);
+    }
     private async Task AddPareigos()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
@@ -202,6 +313,15 @@
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         var data = pgContext.Darbuotojas.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    
+    private async Task<(IEnumerable<Algospriedas>, int)> FetchAlgos(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Algospriedas.ToList();
         var count = data.Count();
 
         return await Task.FromResult((data, count));
@@ -232,6 +352,22 @@
         var departments = pgContext.Skyrius.ToList();
 
         return await Task.FromResult(departments);
+    }
+    
+    private async Task<List<Darbuotojas>> WorkerSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Darbuotojas.ToList();
+
+        return await Task.FromResult(departments);
+    }
+    
+    private async Task<string> GetDarbuotojoData(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Darbuotojas w = pgContext.Darbuotojas.First(s => s.IdDarbuotojas == id);
+        
+        return await Task.FromResult($"{w.Vardas}, {w.Stazas}"); 
     }
 
     #endregion
