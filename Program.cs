@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using StatybaServer.Authentication;
 using StatybaServer.Models;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 

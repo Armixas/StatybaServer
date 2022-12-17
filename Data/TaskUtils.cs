@@ -5,7 +5,7 @@ namespace StatybaServer.Data;
 
 public class TaskUtils
 {
-    public string CalculateHash(string username, string password)
+    public static async Task<string> CalculateHash(string username, string password)
     {
         var hashedPassword = string.Empty;
 
@@ -21,6 +21,6 @@ public class TaskUtils
 
         hashedPassword = stringBuilder.ToString();
 
-        return hashedPassword;
+        return await Task.FromResult(hashedPassword);
     }
 }

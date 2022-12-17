@@ -14,7 +14,7 @@
         <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.Salis))">Šalis</BSDataTableHead>
         <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.Miestas))">Miestas</BSDataTableHead>
         <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.Adresas))">Adresas</BSDataTableHead>
-        <BSDataTableHead TValue="string">Redagavimas</BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
     </Header>
     <Body>
     <BSDataTableRow>
@@ -23,6 +23,8 @@
         <BSTD>@s.Miestas</BSTD>
         <BSTD>@s.Adresas</BSTD>
         <BSTD>
+            <BSButton OnClick="@(() => {RemoveSandelis(@s.IdSandelis);})"
+                                  Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
             <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
         </BSTD>
     </BSDataTableRow>
@@ -58,13 +60,13 @@
 <h3>Skyriai</h3>
 
 
-<BSButton Size="Size.Medium" Color="BSColor.Primary">Pridėti skyrių</BSButton>
+<BSButton Target="modalSkyrius" Size="Size.Medium" Color="BSColor.Primary">Pridėti skyrių</BSButton>
 <BSDataTable FetchItems="FetchDepartment" Context="sk" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Skyrius" Column="@(nameof(Skyrius.IdSkyrius))">ID</BSDataTableHead>
         <BSDataTableHead TValue="string">Sandėlio pavadinimas</BSDataTableHead>
         <BSDataTableHead TValue="Skyrius" Column="@(nameof(Skyrius.Pavadinimas))">Skyriaus pavadinimas</BSDataTableHead>
-        <BSDataTableHead TValue="string">Redagavimas</BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
     </Header>
     <Body>
     <BSDataTableRow>
@@ -72,34 +74,117 @@
         <BSTD>@GetWarehouseData(sk.FkSandelisidSandelis).Result</BSTD>
         <BSTD>@sk.Pavadinimas</BSTD>
         <BSTD>
-            <BSButton Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton OnClick="@(() => {RemoveSkyrius(@sk.IdSkyrius);})"
+                      Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
             <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
         </BSTD>
     </BSDataTableRow>
     </Body>
 </BSDataTable>
 
+<BSModal DataId="modalSkyrius" OnShow="@(() => {_modelSk = new Skyrius();
+                                                   _warehouse = WarehouseSelection().Result;})">
+    <BSForm Model="_modelSk" OnSubmit="AddSkyrius">
+        <BSModalHeader>Naujo skyriaus forma</BSModalHeader>
+        <BSModalContent>
+            <div class="mb-3">
+                <BSLabel>Sandėlis</BSLabel>
+                <BSInput InputType="InputType.Select" @bind-Value="_modelSk.FkSandelisidSandelis">
+                    @for(int i=0; i < _warehouse.Count; i++)
+                    {
+                        var w = _warehouse[i];
+                        string warehouse = w.Salis + ", " + w.Miestas + ", " + w.Adresas;
+                        <option value="@_warehouse[i].IdSandelis">
+                            @warehouse
+                        </option>
+                    }
+                </BSInput>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Skyriaus pavadinimas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelSk.Pavadinimas"/>
+            </div>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalSkyrius">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti skyrių</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
+
 @code {
+    private List<Sandelis> _warehouse = new List<Sandelis>();
     private Sandelis _modelS = new Sandelis();
     private Skyrius _modelSk = new Skyrius();
-    
+
+    #region AddMethods
 
     private async Task AddSandelis()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
-        int lastID = pgContext.Sandelis
-            .OrderBy(x => x.IdSandelis)
-            .Last().IdSandelis;
-
-        if (lastID != null)
-            _modelS.IdSandelis = lastID + 1;
-        else _modelS.IdSandelis = 0;
         await pgContext.Sandelis.AddAsync(_modelS);
         pgContext.SaveChanges();
-        
-        // worst way to "refresh" table
+    // worst way to "refresh" table
         BlazorStrap.ForwardClick("modalSandelis");
         NavManager.NavigateTo("/departmentlist", true);
+    }
+    private async Task AddSkyrius()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+
+        int id = 0;
+        if(pgContext.Skyrius.Count() != 0)
+            id = pgContext.Skyrius.Max(s => s.IdSkyrius) + 1;
+        _modelSk.IdSkyrius = id;
+
+        await pgContext.Skyrius.AddAsync(_modelSk);
+        pgContext.SaveChanges();
+    // worst way to "refresh" table
+        BlazorStrap.ForwardClick("modalSkyrius");
+        NavManager.NavigateTo("/departmentlist", true);
+    }
+
+    #endregion
+
+    #region RemoveMethods
+    private Task RemoveSkyrius(int id)
+    {
+        // Deletes department and workers working who belong to it
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var skyrius = pgContext.Skyrius
+            .Where(s => s.IdSkyrius == id)
+            .Include(s => s.Darbuotojas);
+
+        pgContext.Skyrius.RemoveRange(skyrius);
+        pgContext.SaveChanges();
+        NavManager.NavigateTo("/departmentlist", true);
+
+        return Task.CompletedTask;
+    }
+
+    private Task RemoveSandelis(int id)
+    {
+        // Deletes warehouse and department if it's not full
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var sandelis = pgContext.Sandelis
+            .Where(s => s.IdSandelis == id)
+            .Include(s => s.Skyrius);
+
+        pgContext.Sandelis.RemoveRange(sandelis);
+        pgContext.SaveChanges();
+        NavManager.NavigateTo("/departmentlist", true);
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    private async Task<List<Sandelis>> WarehouseSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var warehouses = pgContext.Sandelis.ToList();
+
+        return await Task.FromResult(warehouses);
     }
 
     #region TableInfo

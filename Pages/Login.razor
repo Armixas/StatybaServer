@@ -2,6 +2,7 @@
 @using StatybaServer.Authentication
 @using System.Reflection.Metadata
 @using BlazorStrap.Utilities
+@using StatybaServer.Data
 @inject WorkerAccountService WorkerAccountService
 @inject IJSRuntime Js
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -53,7 +54,8 @@
     {
         _showSpinner = true;
         var workerAccount = WorkerAccountService.GetUserByName(_model.Username);
-        if (workerAccount == null || workerAccount.Slaptazodis != _model.Password)
+        if (workerAccount == null ||
+            workerAccount.Slaptazodis != TaskUtils.CalculateHash(_model.Username, _model.Password).Result)
         {
             _showSpinner = false;
             return;
@@ -62,7 +64,7 @@
     // saves value into session storage
         await authenStateProvider.UpdateAuthenticationState(new UserSession
         {
-            Username = workerAccount.Slaptazodis,
+            Username = workerAccount.PrisijungimoVardas,
             Role = workerAccount.Role
         });
         NavManager.NavigateTo("/", true);
