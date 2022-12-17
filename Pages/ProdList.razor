@@ -1,64 +1,161 @@
-﻿@page "/grybas"
-
-<PageTitle>Sandėlis</PageTitle>
-@using StatybaServer.Controls;
-@using StatybaServer.Models;
-@inject StatybaServer.Controls.ISearchProduct SearchProduct
-
-<!--<h3>Paieška</h3>-->
-
-<SearchBarComponent OnSearch="HandleSearch"></SearchBarComponent>
+﻿@page "/prodList"
+@inject IBlazorStrap BlazorStrap
+@inject NavigationManager NavManager
+@inject IDbContextFactory<PostgresContext> ContextFactory;
+@using StatybaServer.Models
+@using Microsoft.EntityFrameworkCore
+@using StatybaServer.Data
 
 
-<table>
-	<thead>
-		<tr>
-		<th>
-			Pavadinimas
-		</th>
-		<th>
-			Kaina
-		</th><th>
-			Kiekis
-		</th>
-		</tr>
-	</thead>
-	<tbody>
-		@if(products != null && products.Count() > 0)
-		{
-			@foreach (var product in products)
-			{
-				<ProductItemComponent Preke="product"></ProductItemComponent>
-			}
-		}
-		else
-		{
-			<tr>
-				<td colspan="3">
-					Nera
-				</td>
-			</tr>
-		}
+<h3>Prekės</h3>
+<BSButton Target="modalPreke"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti prekę</BSButton>
+<BSDataTable FetchItems="FetchPrekes" Context="p" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.IdPreke))">ID</BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.Pavadinimas))">      Pavadinimas         </BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.Kategorija))">       Kategorija          </BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.VienetoKaina))">     Vieneto Kaina       </BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.Kiekis))">           Kiekis              </BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.Aprasymas))">        Aprašymas           </BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.TrumpasAprasymas))"> Trumpas aprašymas   </BSDataTableHead>
+        <BSDataTableHead TValue="Preke" Column="@(nameof(Preke.Nuotrauka))">        Nuotrauka           </BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
+    </Header>
+    <Body>
+        <BSDataTableRow>
+            <BSTD>@p.IdPreke            </BSTD>
+            <BSTD>@p.Pavadinimas        </BSTD>
+            <BSTD>@p.Kategorija         </BSTD>
+            <BSTD>@p.VienetoKaina      </BSTD>
+            <BSTD>@p.Kiekis             </BSTD>
+            <BSTD>@p.Aprasymas          </BSTD>
+            <BSTD>@p.TrumpasAprasymas  </BSTD>
+            <BSTD><img src=@p.Nuotrauka style="height:200px;" />         </BSTD>
+            
+            
+            <BSTD>
+                <BSButton OnClick="@(() => {RemovePreke(@p.IdPreke);})"
+                          Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+                <BSButton Target="modalPreke" OnClick="@(() => {_modelW = @p; _isAdd=false;})"
+                    Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+            </BSTD>
+        </BSDataTableRow>
+    </Body>
+</BSDataTable>
 
-	</tbody>
-</table>
-<ul>
-	@foreach (var prod in products)
-	{
-			<li>@prod.Pavadinimas <img src=@prod.Nuotrauka style="width:200px; padding:10px;"></li>
-	}
-</ul>
+<BSModal DataId="modalPreke">
+    <BSForm Model="_modelW" OnSubmit="AddPreke">
+        <BSModalHeader>Naujos prekės forma</BSModalHeader>
+        <BSModalContent>
+           
+            <div class="mb-3">
+                <BSLabel>Pavadinimas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Pavadinimas" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Kategorija</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Kategorija" />
+            </div>
+            
+            <div class="mb-3">
+                <BSLabel>Vieneto Kaina</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.VienetoKaina" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Kiekis</BSLabel>
+                <BSInput InputType="InputType.Number" @bind-Value="_modelW.Kiekis" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Aprašymas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Aprasymas" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Trumpas aprašymas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.TrumpasAprasymas" />
+            </div>
+            <div class="mb-3">
+                <BSLabel>Nuotrauka</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Nuotrauka" />
+            </div>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalPreke">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Pridėti prekę</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
+
+
+
 
 @code {
-	private IEnumerable<Preke> products;
-	protected override void OnInitialized()
-	{
-		base.OnInitialized();
-		products = SearchProduct.Execute("");
-	}
+    private List<Skyrius> _deparments = new List<Skyrius>();
+    private List<Pareigos> _positions = new List<Pareigos>();
+    private Preke _modelW = new Preke();
+    private bool _isAdd = true;
 
-	private void HandleSearch(string filter)
-	{
-		products = SearchProduct.Execute(filter);
-	}
+    private Task RemovePreke(int id)
+    {
+        // Deletes worker
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var prekes = pgContext.Prekes.First(d => d.IdPreke == id);
+
+        pgContext.Prekes.Remove(prekes);
+
+        pgContext.SaveChanges();
+
+        NavManager.NavigateTo("/prodList", true);
+        return Task.CompletedTask;
+    }
+
+    #region Add
+    private async Task AddPreke()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        if(_isAdd)
+        {
+
+
+
+            await pgContext.Prekes.AddAsync(_modelW);
+            pgContext.SaveChanges();
+
+            BlazorStrap.ForwardClick("modalPreke");
+            NavManager.NavigateTo("/prodList", true);
+        }
+        else
+        {
+           /* pgContext.Entry(_modelW).State = EntityState.Modified;
+            pgContext.SaveChanges();
+
+            BlazorStrap.ForwardClick("modalPreke");
+            NavManager.NavigateTo("/prodList", true);*/
+        }
+
+    }
+
+    #endregion
+
+    #region Fetch
+
+    private async Task<(IEnumerable<Preke>, int)> FetchPrekes(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Prekes.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    #endregion
+    private void UpdatePrekes(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var prekes = pgContext.Prekes.First(d => d.IdPreke == id);
+        _modelW = (Preke)prekes;
+        pgContext.Entry(prekes).State = EntityState.Modified;
+        pgContext.SaveChanges();
+
+        BlazorStrap.ForwardClick("modalPreke");
+        NavManager.NavigateTo("/prodList", true);
+    }
 }
