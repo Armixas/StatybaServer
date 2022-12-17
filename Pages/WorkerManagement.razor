@@ -1,0 +1,239 @@
+﻿@page "/workermanagement"
+@inject IBlazorStrap BlazorStrap
+@inject NavigationManager NavManager
+@inject IDbContextFactory<PostgresContext> ContextFactory;
+@attribute [Authorize(Roles = "Administratorius")]
+@using StatybaServer.Models
+@using Microsoft.EntityFrameworkCore
+@using StatybaServer.Data
+
+<h3>Pareigos</h3>
+
+<BSButton Target="modalPareigos" Size="Size.Medium" Color="BSColor.Primary">Pridėti pareigas</BSButton>
+<BSDataTable FetchItems="FetchPositions" Context="pos" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Skyrius" Column="@(nameof(Pareigos.Pavadinimas))">Pareigos</BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@pos.Pavadinimas</BSTD>
+        <BSTD>
+            <BSButton Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+        </BSTD>
+    </BSDataTableRow>
+    </Body>
+</BSDataTable>
+<BSModal DataId="modalPareigos" OnShow="@(() => {_modelP = new Pareigos();})">
+    <BSForm Model="_modelP" OnSubmit="AddPareigos">
+        <BSModalHeader>Naujų pareigų forma</BSModalHeader>
+        <BSModalContent>
+            <div class="mb-3">
+                <BSLabel>Pareigos</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelP.Pavadinimas" />
+            </div>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalPareigos">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti pareigas</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
+
+<h3>Darbuotojai</h3>
+
+<BSButton Target="modalDarbuotojas" Size="Size.Medium" Color="BSColor.Primary">Pridėti darbuotoją</BSButton>
+<BSDataTable FetchItems="FetchWorkers" Context="d" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.IdDarbuotojas))">ID</BSDataTableHead>
+        <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.PrisijungimoVardas))">Prisijungimo vardas</BSDataTableHead>
+        <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.Kodas))">Kodas</BSDataTableHead>
+        <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.Vardas))">Vardas</BSDataTableHead>
+        <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.ValandinisUzdarbis))">Valandinis uždarbis</BSDataTableHead>
+        <BSDataTableHead TValue="Darbuotojas" Column="@(nameof(Darbuotojas.Stazas))">Stažas, m.</BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@d.IdDarbuotojas</BSTD>
+        <BSTD>@d.PrisijungimoVardas</BSTD>
+        <BSTD>@d.Kodas</BSTD>
+        <BSTD>@d.Vardas</BSTD>
+        <BSTD>@d.ValandinisUzdarbis</BSTD>
+        <BSTD>@d.Stazas</BSTD>
+        <BSTD>
+            <BSButton OnClick="@(() => {RemoveDarbuotojas(@d.IdDarbuotojas);})"
+                                  Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton href="form" Size="Size.Small" Color="BSColor.Primary">Skaičiuoti algos priedą</BSButton>
+            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+        </BSTD>
+    </BSDataTableRow>
+    </Body>
+</BSDataTable>
+<BSModal DataId="modalDarbuotojas" OnShow="@(() => {_modelW = new Darbuotojas();
+                                                   _deparments = DepartmentSelection().Result;
+                                                       _positions = PositonSelection().Result;
+                                           })">
+    <BSForm Model="_modelW" OnSubmit="AddDarbuotojas">
+        <BSModalHeader>Naujo darbuotojo forma</BSModalHeader>
+        <BSModalContent>
+            <div class="mb-3">
+                <BSLabel>Skyrius</BSLabel>
+                <BSInput InputType="InputType.Select" @bind-Value="_modelW.FkSkyriusidSkyrius">
+                    @for(int i=0; i < _deparments.Count; i++)
+                    {
+                        var d = _deparments[i];
+                        string skyrius = GetWarehouseString(d.FkSandelisidSandelis).Result;
+                        skyrius += " - " + d.Pavadinimas;
+                        <option value="@d.IdSkyrius">
+                            @skyrius
+                        </option>
+                    }
+                </BSInput>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Pareigos</BSLabel>
+                <BSInput InputType="InputType.Select" @bind-Value="_modelW.FkPareigosidPareigos">
+                    @for(int i=0; i < _positions.Count; i++)
+                    {
+                        <option value="@_positions[i].IdPareigos">
+                            @_positions[i].Pavadinimas
+                        </option>
+                    }
+                </BSInput>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Prisijungimo vardas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.PrisijungimoVardas"/>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Slaptažodis</BSLabel>
+                <BSInput InputType="InputType.Password" @bind-Value="_modelW.Slaptazodis"/>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Kodas</BSLabel>
+                <BSInput InputType="InputType.Number" @bind-Value="_modelW.Kodas"/>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Vardas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Vardas"/>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Pavardė</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Pavarde"/>
+            </div>
+            <div class="mb-3">
+                <BSLabel>Valandinis uždarbis</BSLabel>
+                <BSInput InputType="InputType.Number" @bind-Value="_modelW.ValandinisUzdarbis"/>
+            </div>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalDarbuotojas">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti darbuotoją</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
+
+@code {
+    private List<Skyrius> _deparments = new List<Skyrius>();
+    private List<Pareigos> _positions = new List<Pareigos>();
+    private Darbuotojas _modelW = new Darbuotojas();
+    private Pareigos _modelP = new Pareigos();
+
+    private Task RemoveDarbuotojas(int id)
+    {
+        // Deletes worker
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var darbuotojas = pgContext.Darbuotojas.First(d => d.IdDarbuotojas == id);
+
+        pgContext.Darbuotojas.Remove(darbuotojas);
+
+        pgContext.SaveChanges();
+
+        NavManager.NavigateTo("/workermanagement", true);
+        return Task.CompletedTask;
+    }
+
+    #region Add
+
+    private async Task<string> GetWarehouseString(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Sandelis sand = pgContext.Sandelis.Where(s => s.IdSandelis == id).First();
+        string warehouse = $"{sand.Miestas}, {sand.Adresas}";
+        return await Task.FromResult(warehouse);
+    }
+
+    private async Task AddDarbuotojas()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+
+        _modelW.Slaptazodis = TaskUtils
+            .CalculateHash(_modelW.PrisijungimoVardas, _modelW.Slaptazodis).Result;
+
+        _modelW.PakeitimaiSesijoje = "";
+        _modelW.Nuotrauka = "";
+        _modelW.IdarbinimoData = DateOnly.FromDateTime(DateTime.Now);
+        _modelW.Role = "Darbuotojas";
+        _modelW.Stazas = 0;
+
+        await pgContext.Darbuotojas.AddAsync(_modelW);
+        pgContext.SaveChanges();
+
+        BlazorStrap.ForwardClick("modalDarbuotojas");
+        NavManager.NavigateTo("/workermanagement", true);
+    }
+    private async Task AddPareigos()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        await pgContext.Pareigos.AddAsync(_modelP);
+        pgContext.SaveChanges();
+    // worst way to "refresh" table
+        BlazorStrap.ForwardClick("modalPareigos");
+        NavManager.NavigateTo("/workermanagement", true);
+    }
+
+    #endregion
+
+    #region Fetch
+
+    private async Task<(IEnumerable<Darbuotojas>, int)> FetchWorkers(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Darbuotojas.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    private async Task<(IEnumerable<Pareigos>, int)> FetchPositions(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Pareigos.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+
+    #endregion
+
+    #region Selection
+
+    private async Task<List<Pareigos>> PositonSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var positions = pgContext.Pareigos.ToList();
+
+        return await Task.FromResult(positions);
+    }
+    private async Task<List<Skyrius>> DepartmentSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Skyrius.ToList();
+
+        return await Task.FromResult(departments);
+    }
+
+    #endregion
+
+}

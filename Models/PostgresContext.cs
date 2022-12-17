@@ -65,7 +65,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("algospriedas");
 
             entity.Property(e => e.IdAlgosPriedas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_algos_priedas");
             entity.Property(e => e.Aprasymas)
                 .HasMaxLength(255)
@@ -79,7 +79,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkDarbuotojasidDarbuotojasNavigation).WithMany(p => p.Algospriedas)
                 .HasForeignKey(d => d.FkDarbuotojasidDarbuotojas)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("gauna");
         });
 
@@ -90,7 +90,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("asmuo");
 
             entity.Property(e => e.IdAsmuo)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_asmuo");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
@@ -104,7 +104,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("atsiemimas");
 
             entity.Property(e => e.IdAtsiemimas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_atsiemimas");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
@@ -118,7 +118,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("atsiskaitymas");
 
             entity.Property(e => e.IdAtsiskaitymas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_atsiskaitymas");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
@@ -132,7 +132,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("darbuotojas");
 
             entity.Property(e => e.IdDarbuotojas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_darbuotojas");
             entity.Property(e => e.FkPareigosidPareigos).HasColumnName("fk_pareigosid_pareigos");
             entity.Property(e => e.FkSkyriusidSkyrius).HasColumnName("fk_skyriusid_skyrius");
@@ -164,12 +164,12 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkPareigosidPareigosNavigation).WithMany(p => p.Darbuotojas)
                 .HasForeignKey(d => d.FkPareigosidPareigos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("uzima");
 
             entity.HasOne(d => d.FkSkyriusidSkyriusNavigation).WithMany(p => p.Darbuotojas)
                 .HasForeignKey(d => d.FkSkyriusidSkyrius)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("dirba");
         });
 
@@ -180,7 +180,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("klientas");
 
             entity.Property(e => e.IdKlientas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_klientas");
             entity.Property(e => e.Aprasymas)
                 .HasMaxLength(255)
@@ -203,7 +203,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("pareigos");
 
             entity.Property(e => e.IdPareigos)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_pareigos");
             entity.Property(e => e.Pavadinimas)
                 .HasMaxLength(255)
@@ -217,7 +217,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("pastomatas");
 
             entity.Property(e => e.IdPastomatas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_pastomatas");
             entity.Property(e => e.Adresas)
                 .HasMaxLength(255)
@@ -240,7 +240,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("preke");
 
             entity.Property(e => e.IdPreke)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_preke");
             entity.Property(e => e.Aprasymas)
                 .HasMaxLength(255)
@@ -272,7 +272,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkZymaidZymaNavigation).WithMany(p => p.Priskiriamas)
                 .HasForeignKey(d => d.FkZymaidZyma)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("priskiriama");
         });
 
@@ -283,7 +283,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("sandelis");
 
             entity.Property(e => e.IdSandelis)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_sandelis");
             entity.Property(e => e.Adresas)
                 .HasMaxLength(255)
@@ -303,7 +303,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("skyrius");
 
             entity.Property(e => e.IdSkyrius)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_skyrius");
             entity.Property(e => e.FkSandelisidSandelis).HasColumnName("fk_sandelisid_sandelis");
             entity.Property(e => e.Pavadinimas)
@@ -312,7 +312,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkSandelisidSandelisNavigation).WithMany(p => p.Skyrius)
                 .HasForeignKey(d => d.FkSandelisidSandelis)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("priklauso");
         });
 
@@ -323,7 +323,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("statusas");
 
             entity.Property(e => e.IdStatusas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_statusas");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
@@ -341,7 +341,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkPrekeidPrekeNavigation).WithMany(p => p.Turis)
                 .HasForeignKey(d => d.FkPrekeidPreke)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("turi");
         });
 
@@ -352,7 +352,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("uzsakymas");
 
             entity.Property(e => e.IdUzsakymas)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_uzsakymas");
             entity.Property(e => e.Adresas)
                 .HasMaxLength(255)
@@ -404,12 +404,12 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkKlientasidKlientasNavigation).WithMany(p => p.Uzsakymas)
                 .HasForeignKey(d => d.FkKlientasidKlientas)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("sudaro");
 
             entity.HasOne(d => d.FkPastomatasidPastomatasNavigation).WithMany(p => p.Uzsakymas)
                 .HasForeignKey(d => d.FkPastomatasidPastomatas)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("turi");
 
             entity.HasOne(d => d.StatusasNavigation).WithMany(p => p.Uzsakymas)
@@ -424,7 +424,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("uzsakymopreke");
 
             entity.Property(e => e.IdUzsakymoPreke)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_uzsakymo_preke");
             entity.Property(e => e.Atsiemimas).HasColumnName("atsiemimas");
             entity.Property(e => e.FkPrekeidPreke).HasColumnName("fk_prekeid_preke");
@@ -438,12 +438,12 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.FkPrekeidPrekeNavigation).WithMany(p => p.Uzsakymoprekes)
                 .HasForeignKey(d => d.FkPrekeidPreke)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("susideda");
 
             entity.HasOne(d => d.FkUzsakymasidUzsakymasNavigation).WithMany(p => p.Uzsakymoprekes)
                 .HasForeignKey(d => d.FkUzsakymasidUzsakymas)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("uzsakomas");
         });
 
@@ -454,7 +454,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("zyma");
 
             entity.Property(e => e.IdZyma)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("id_zyma");
             entity.Property(e => e.Pavadinimas)
                 .HasMaxLength(255)
