@@ -2,17 +2,33 @@
 
 @inject IViewProduct viewProduct
 
-<div>
-	<img src="@preke.Nuotrauka" />
-	<br />
-	@preke.Pavadinimas
-	<br />
-	@preke.VienetoKaina.ToString()
-	<br />
-	<br />
-	@preke.Aprasymas
 
-</div>
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row gx-4 gx-lg-5 align-items-center">
+            <div class="col-md-6">
+                <img class="card-img-top mb-5 mb-md-0 border-1"
+                     src="@preke.Nuotrauka"/>
+            </div>
+            <div class="col-md-6">
+                
+                <h1 class="display-5 fw-bolder">@preke.Pavadinimas</h1>
+                <div class="fs-5 mb-5">
+                    <span>€@preke.VienetoKaina.ToString()</span>
+                    
+                </div>
+                <p class="lead">@preke.Aprasymas</p>
+                <div class="d-flex">
+                    <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                        <i class="bi-cart-fill me-1"></i>
+                        Į krepšelį
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <NavLink href="/bootstrapPrekes">Atgalios</NavLink>
 
 @code {

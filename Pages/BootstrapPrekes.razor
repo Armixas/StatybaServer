@@ -22,13 +22,12 @@
 
                 <BSCard CardType="CardType.Body">
                     <BSCard CardType="CardType.Image" src=@p.Nuotrauka alt="Card image cap"/>
-                    <a href="/product/@p.IdPreke">Kestis</a>
                     <BSCard CardType="CardType.Title">@p.Pavadinimas</BSCard>
                     <BSCard CardType="CardType.Text">
                         @p.Aprasymas
                         <h2>@p.VienetoKaina$</h2>
                     </BSCard>
-                    <BSButton Color="BSColor.Primary">Prideti i krepseli</BSButton>
+                    <BSButton Color="BSColor.Primary"><a class="text-light" href="/product/@p.IdPreke">Perziureti</a></BSButton>
                 </BSCard>
             </BSCard>
         </div>
