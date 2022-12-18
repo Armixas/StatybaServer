@@ -1,7 +1,5 @@
-﻿
-namespace StatybaServer.Components
+﻿namespace StatybaServer.Components
 {
-    
     public class Cart : ICart
     {
         public int CartCount { get; set; }
