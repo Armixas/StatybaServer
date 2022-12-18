@@ -38,7 +38,23 @@
     </ItemGroup>
 
     <ItemGroup>
-      
+      <None Include="wwwroot\uploads\13ccnvxe.a42.jpg" />
+      <None Include="wwwroot\uploads\1gjkiip5.cmr" />
+      <None Include="wwwroot\uploads\bokg0kpr.3a0" />
+      <None Include="wwwroot\uploads\d0m3le0u.tfa" />
+      <None Include="wwwroot\uploads\dkxlny0y.bb0" />
+      <None Include="wwwroot\uploads\em.jpg" />
+      <None Include="wwwroot\uploads\fdzc4csy.ex2" />
+      <None Include="wwwroot\uploads\fz0aspfn.0iq" />
+      <None Include="wwwroot\uploads\gqs1zen5.bhw" />
+      <None Include="wwwroot\uploads\ktxjtktm.uzb" />
+      <None Include="wwwroot\uploads\np2thmsn.vmb" />
+      <None Include="wwwroot\uploads\o2nt3t3n.cks" />
+      <None Include="wwwroot\uploads\ossd1cpz.hwr" />
+      <None Include="wwwroot\uploads\pbaarn0t.evu" />
+      <None Include="wwwroot\uploads\rodyklė.jpg" />
+      <None Include="wwwroot\uploads\wscpiz0i.nh4.jpg" />
+      <None Include="wwwroot\uploads\zkcmow4p.vgx" />
     </ItemGroup>
 
 </Project>

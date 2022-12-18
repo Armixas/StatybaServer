@@ -5,6 +5,8 @@
 @using StatybaServer.Models
 @using Microsoft.EntityFrameworkCore
 @using StatybaServer.Data
+@using System.Net.Http.Headers;
+@inject HttpClient Http
 
 
 <h3>Prekės</h3>
@@ -74,13 +76,12 @@
                 <BSInput InputType="InputType.Text" @bind-Value="_modelW.TrumpasAprasymas" />
             </div>
             <div class="mb-3">
-                <BSLabel>Nuotrauka</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Nuotrauka" />
+                <InputFile OnChange="@OnInputFileChange" single />
             </div>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalPreke">Atšaukti</BSButton>
-            <BSButton IsSubmit="true" Color="BSColor.Primary">Pridėti prekę</BSButton>
+            <BSButton OnClick="@(() => { _modelW.Nuotrauka = @GetStoredFileName(fileNames[0]);})" IsSubmit="true" Color="BSColor.Primary">Pridėti prekę</BSButton>
         </BSModalFooter>
     </BSForm>
 </BSModal>
@@ -93,6 +94,26 @@
     private List<Pareigos> _positions = new List<Pareigos>();
     private Preke _modelW = new Preke();
     private bool _isAdd = true;
+
+    private int maxAllowedFiles = 1;
+	private long maxFileSize = long.MaxValue;
+	private List<string> fileNames = new();
+	private List<UploadResult> uploadResults = new();
+
+    private ModalClass Modal { get; set; } = new ModalClass();
+
+    private void OnFileChange(InputFileChangeEventArgs e)
+    {
+        // Resets Validation. Everytime InputFile is clicked it resets.
+        Modal.HasFile = null;
+        if (e.FileCount > 0)
+            Modal.HasFile = true;
+    }
+
+    private class ModalClass
+    {
+        public bool? HasFile { get; set; }
+    }
 
     
 
@@ -149,5 +170,41 @@
         return await Task.FromResult((data, count));
     }
     #endregion
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+	{
+		using var content = new MultipartFormDataContent();
+
+		foreach(var file in e.GetMultipleFiles(maxAllowedFiles))
+		{
+			var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+			fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+			fileNames.Add(file.Name);
+
+			content.Add(
+				content: fileContent,
+				name: "\"files\"",
+				fileName: file.Name);
+		}
+
+		var response = await Http.PostAsync("https://localhost:44306/api/File", content);
+		var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
+
+		if(newUploadResults is not null)
+		{
+			uploadResults = uploadResults.Concat(newUploadResults).ToList();
+		}
+	}
+
+    private string? GetStoredFileName(string fileName)
+	{
+		var uploadResult = uploadResults.SingleOrDefault(f => f.FileName == fileName);
+		if(uploadResult is not null)
+		{
+			return  "uploads/" + uploadResult.StoredFileName;
+		}
+		return _modelW.Nuotrauka;
+	}
     
 }

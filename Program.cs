@@ -46,5 +46,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapControllerRoute("/api/File", "{controller=File}");
 
 app.Run();
