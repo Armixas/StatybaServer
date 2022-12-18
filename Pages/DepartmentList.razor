@@ -7,7 +7,7 @@
 @inject IDbContextFactory<PostgresContext> ContextFactory;
 
 <h3>Sandėliai</h3>
-<BSButton Target="modalSandelis" Size="Size.Medium" Color="BSColor.Primary">Pridėti sandėlį</BSButton>
+<BSButton Target="modalSandelis" OnClick="@(() => { _modelS = new Sandelis();})" Size="Size.Medium" Color="BSColor.Primary">Pridėti sandėlį</BSButton>
 <BSDataTable FetchItems="FetchWarehouse" Context="s" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Sandelis" Column="@(nameof(Sandelis.IdSandelis))">ID</BSDataTableHead>
@@ -25,7 +25,7 @@
         <BSTD>
             <BSButton OnClick="@(() => {RemoveSandelis(@s.IdSandelis);})"
                                   Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
-            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+            <BSButton Target="modalSandelis" OnClick="@(() => {_modelS = @s; _isAdd=false;})" Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
         </BSTD>
     </BSDataTableRow>
     </Body>
@@ -60,7 +60,7 @@
 <h3>Skyriai</h3>
 
 
-<BSButton Target="modalSkyrius" Size="Size.Medium" Color="BSColor.Primary">Pridėti skyrių</BSButton>
+<BSButton Target="modalSkyrius" OnClick="@(() => { _modelSk = new Skyrius();})" Size="Size.Medium" Color="BSColor.Primary">Pridėti skyrių</BSButton>
 <BSDataTable FetchItems="FetchDepartment" Context="sk" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Skyrius" Column="@(nameof(Skyrius.IdSkyrius))">ID</BSDataTableHead>
@@ -76,7 +76,7 @@
         <BSTD>
             <BSButton OnClick="@(() => {RemoveSkyrius(@sk.IdSkyrius);})"
                       Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
-            <BSButton Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+            <BSButton Target="modalSkyrius" OnClick="@(() => { _modelSk = @sk; _isAdd=false;})" Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
         </BSTD>
     </BSDataTableRow>
     </Body>
@@ -116,32 +116,53 @@
     private List<Sandelis> _warehouse = new List<Sandelis>();
     private Sandelis _modelS = new Sandelis();
     private Skyrius _modelSk = new Skyrius();
-
+    private bool _isAdd = true;
     #region AddMethods
 
     private async Task AddSandelis()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
-        await pgContext.Sandelis.AddAsync(_modelS);
-        pgContext.SaveChanges();
+        if (_isAdd)
+        {
+            await pgContext.Sandelis.AddAsync(_modelS);
+            pgContext.SaveChanges();
     // worst way to "refresh" table
-        BlazorStrap.ForwardClick("modalSandelis");
-        NavManager.NavigateTo("/departmentlist", true);
+            BlazorStrap.ForwardClick("modalSandelis");
+            NavManager.NavigateTo("/departmentlist", true);
+        }
+        else
+        {
+            await Task.CompletedTask;
+            pgContext.Entry(_modelS).State = EntityState.Modified;
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("modalSandelis");
+            NavManager.NavigateTo("/departmentlist", true);
+        }
     }
     private async Task AddSkyrius()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        if (_isAdd)
+        {
+            int id = 0;
+            if (pgContext.Skyrius.Count() != 0)
+                id = pgContext.Skyrius.Max(s => s.IdSkyrius) + 1;
+            _modelSk.IdSkyrius = id;
 
-        int id = 0;
-        if(pgContext.Skyrius.Count() != 0)
-            id = pgContext.Skyrius.Max(s => s.IdSkyrius) + 1;
-        _modelSk.IdSkyrius = id;
-
-        await pgContext.Skyrius.AddAsync(_modelSk);
-        pgContext.SaveChanges();
+            await pgContext.Skyrius.AddAsync(_modelSk);
+            pgContext.SaveChanges();
     // worst way to "refresh" table
-        BlazorStrap.ForwardClick("modalSkyrius");
-        NavManager.NavigateTo("/departmentlist", true);
+            BlazorStrap.ForwardClick("modalSkyrius");
+            NavManager.NavigateTo("/departmentlist", true);
+        }
+        else
+        {
+            await Task.CompletedTask;
+            pgContext.Entry(_modelSk).State = EntityState.Modified;
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("modalSandelis");
+            NavManager.NavigateTo("/departmentlist", true);
+        }
     }
 
     #endregion
