@@ -12,7 +12,19 @@
             <NavBar/>
         </div>
         <article class="content px-4 m-4">
+            <CascadingValue Value="@_CartCount">
             @Body
+            </CascadingValue>
         </article>
     </main>
 </div>
+
+@code
+{
+    public int _CartCount { get; set; } = 0;
+
+    public void Add()
+    {
+        _CartCount++;
+    }
+}

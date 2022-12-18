@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using StatybaServer.Authentication;
 using StatybaServer.Models;
 using Npgsql;
+using StatybaServer.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ builder.Services.AddBlazorStrap();
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<ISearchProduct, SearchProduct>();
 builder.Services.AddTransient<IViewProduct, ViewProduct>();
+builder.Services.AddSingleton<ICart, Cart>();
+
 //builder.Services.AddDbContext<ReadContext>(
 //    o => o.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 //    );

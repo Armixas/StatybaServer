@@ -3,12 +3,15 @@
 @inject NavigationManager NavManager
 @inject IDbContextFactory<PostgresContext> ContextFactory;
 @using BlazorStrap
+@inject ICart Cart
 @using StatybaServer.Models
 @using Microsoft.EntityFrameworkCore
 @using StatybaServer.Data
 
 
 <h3>pyfaardas</h3>
+
+@Cart.GetCount()
 
 <section class="py-5">
 <div class="container px-4 px-lg-5 mt-5">
@@ -27,7 +30,7 @@
                         @p.Aprasymas
                         <h2>@p.VienetoKaina$</h2>
                     </BSCard>
-                    <BSButton Color="BSColor.Primary"><a class="text-light" href="/product/@p.IdPreke">Perziureti</a></BSButton>
+                            <BSButton OnClick="@(() => { Add();})" Color="BSColor.Primary"><a class="text-light" href="/product/@p.IdPreke">Perziureti</a></BSButton>
                 </BSCard>
             </BSCard>
         </div>
@@ -47,18 +50,19 @@
 
 
 @code {
-   
-    private List<Preke> _prekes = new List<Preke>();
-    
 
-    
+    private List<Preke> _prekes = new List<Preke>();
+
+
+
+
     protected override async Task OnInitializedAsync()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         _prekes = pgContext.Prekes.ToList();
-       
+
     }
-    
+
     private async Task<IEnumerable<Preke>> ForPrekes(DataRequest dataRequest)
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
@@ -75,5 +79,11 @@
 
         return await Task.FromResult((data, count));
     }
-   
+
+    private async Task Add()
+    {
+        Cart.Add();
+        await Task.CompletedTask;
+    }
+
 }
