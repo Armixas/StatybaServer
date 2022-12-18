@@ -13,7 +13,7 @@
 <BSDataTable FetchItems="FetchPositions" Context="pos" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Skyrius" Column="@(nameof(Pareigos.Pavadinimas))">Pareigos</BSDataTableHead>
-        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
+        
     </Header>
     <Body>
     <BSDataTableRow>
@@ -297,7 +297,7 @@
         int stazas = GetWorkersStazas(_modelB.FkDarbuotojasidDarbuotojas).Result;
         decimal valandinis =  GetWorkersValandinis(_modelB.FkDarbuotojasidDarbuotojas).Result;
         
-        if (stazas == 0)
+        if (stazas >= 0)
         {
             stazas += 5;
         }
