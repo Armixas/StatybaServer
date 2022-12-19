@@ -5,7 +5,7 @@
 @inject IBlazorStrap BlazorStrap
 @inject NavigationManager NavManager
 @inject IDbContextFactory<PostgresContext> ContextFactory;
-
+@using System.ComponentModel.DataAnnotations
 <h3>Sandėliai</h3>
 <BSButton Target="modalSandelis" OnClick="@(() => { _modelS = new Sandelis();})" Size="Size.Medium" Color="BSColor.Primary">Pridėti sandėlį</BSButton>
 <BSDataTable FetchItems="FetchWarehouse" Context="s" PaginationBottom="false">
@@ -32,21 +32,24 @@
 </BSDataTable>
 
 <BSModal DataId="modalSandelis" OnShow="@(() => {_modelS = new Sandelis();})">
-    <BSForm Model="_modelS" OnSubmit="AddSandelis">
+    <BSForm Model="_modelS" OnValidSubmit="AddSandelis">
         <BSModalHeader>Naujo sandėlio forma</BSModalHeader>
         <BSModalContent>
-            <div class="mb-3">
-                <BSLabel>Šalis</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelS.Salis" />
-            </div>
-            <div class="mb-3">
-                <BSLabel>Miestas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelS.Miestas" />
-            </div>
-            <div class="mb-3">
-                <BSLabel>Adresas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelS.Adresas" />
-            </div>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Šalis</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelS.Salis"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Miestas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelS.Miestas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Adresas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelS.Adresas"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalSandelis">Atšaukti</BSButton>
@@ -84,26 +87,29 @@
 
 <BSModal DataId="modalSkyrius" OnShow="@(() => {_modelSk = new Skyrius();
                                                    _warehouse = WarehouseSelection().Result;})">
-    <BSForm Model="_modelSk" OnSubmit="AddSkyrius">
+    <BSForm Model="_modelSk" OnValidSubmit="AddSkyrius">
         <BSModalHeader>Naujo skyriaus forma</BSModalHeader>
         <BSModalContent>
-            <div class="mb-3">
-                <BSLabel>Sandėlis</BSLabel>
-                <BSInput InputType="InputType.Select" @bind-Value="_modelSk.FkSandelisidSandelis">
-                    @for(int i=0; i < _warehouse.Count; i++)
-                    {
-                        var w = _warehouse[i];
-                        string warehouse = w.Salis + ", " + w.Miestas + ", " + w.Adresas;
-                        <option value="@_warehouse[i].IdSandelis">
-                            @warehouse
-                        </option>
-                    }
-                </BSInput>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Skyriaus pavadinimas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelSk.Pavadinimas"/>
-            </div>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Sandėlis</BSLabel>
+                    <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelSk.FkSandelisidSandelis">
+                        @for (int i = 0; i < _warehouse.Count; i++)
+                        {
+                            var w = _warehouse[i];
+                            string warehouse = w.Salis + ", " + w.Miestas + ", " + w.Adresas;
+                            <option value="@_warehouse[i].IdSandelis">
+                                @warehouse
+                            </option>
+                        }
+                    </BSInput>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Skyriaus pavadinimas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelSk.Pavadinimas"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalSkyrius">Atšaukti</BSButton>

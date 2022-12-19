@@ -33,15 +33,16 @@
 </BSDataTable>
 
 <BSModal DataId="modalZyma">
-    <BSForm Model="_modelZ" OnSubmit="AddZyma">
+    <BSForm Model="_modelZ" OnValidSubmit="AddZyma">
         <BSModalHeader>Naujos prekės forma</BSModalHeader>
         <BSModalContent>
-           
-            <div class="mb-3">
-                <BSLabel>Pavadinimas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelZ.Pavadinimas"/>
-            </div>
-            
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Pavadinimas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelZ.Pavadinimas"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalZyma">Atšaukti</BSButton>
@@ -89,51 +90,52 @@
 
 <BSModal DataId="modalPreke" OnShow="@(() => {_zymos = DepartmentSelection().Result;
                                      })">
-    <BSForm Model="_modelW" OnSubmit="AddPreke ">
+    <BSForm Model="_modelW" OnValidSubmit="AddPreke ">
         <BSModalHeader>Naujos prekės forma</BSModalHeader>
         <BSModalContent>
-           
-            <div class="mb-3">
-                <BSLabel>Pavadinimas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Pavadinimas"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Kategorija</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Kategorija" />
-            </div>
-            
-            <div class="mb-3">
-                <BSLabel>Vieneto Kaina</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.VienetoKaina" />
-            </div>
-            <div class="mb-3">
-                <BSLabel>Kiekis</BSLabel>
-                <BSInput InputType="InputType.Number" @bind-Value="_modelW.Kiekis" />
-            </div>
-            <div class="mb-3">
-                <BSLabel>Aprašymas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Aprasymas" />
-            </div>
-            <div class="mb-3">
-                <BSLabel>Trumpas aprašymas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.TrumpasAprasymas" />
-            </div>
-            <div class="mb-3">
-                <InputFile OnChange="@OnInputFileChange" single />
-            </div>
-            <div class="mb-3">
-                <BSLabel>Zyma</BSLabel>
-                <BSInput InputType="InputType.Select" @bind-Value="_modelP.FkZymaidZyma">
-                    @for (int i = 0; i < _zymos.Count; i++)
-                    {
-                        <option value="@_zymos[i].IdZyma">
-                            @_zymos[i].Pavadinimas
-                        </option>
-                    }
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Pavadinimas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.Pavadinimas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Kategorija</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.Kategorija"/>
+                </div>
 
-                </BSInput>
-            </div>
-            
+                <div class="mb-3">
+                    <BSLabel>Vieneto Kaina</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.VienetoKaina"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Kiekis</BSLabel>
+                    <BSInput InputType="InputType.Number" ValidateOnInput="true" @bind-Value="_modelW.Kiekis"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Aprašymas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.Aprasymas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Trumpas aprašymas</BSLabel>
+                    <BSInput InputType="InputType.Text"  ValidateOnInput="true" @bind-Value="_modelW.TrumpasAprasymas"/>
+                </div>
+                <div class="mb-3">
+                    <InputFile OnChange="@OnInputFileChange" single/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Zyma</BSLabel>
+                    <BSInput InputType="InputType.Select" @bind-Value="_modelP.FkZymaidZyma">
+                        @for (int i = 0; i < _zymos.Count; i++)
+                        {
+                            <option value="@_zymos[i].IdZyma">
+                                @_zymos[i].Pavadinimas
+                            </option>
+                        }
+
+                    </BSInput>
+                </div>
+            </BSFrom>
             
         </BSModalContent>
         <BSModalFooter>
