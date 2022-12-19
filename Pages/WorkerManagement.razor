@@ -6,8 +6,12 @@
 @using StatybaServer.Models
 @using Microsoft.EntityFrameworkCore
 @using StatybaServer.Data
+@using System.ComponentModel.DataAnnotations
+
 
 <h3>Pareigos</h3>
+
+
 
 <BSButton Target="modalPareigos" Size="Size.Medium" Color="BSColor.Primary">Pridėti pareigas</BSButton>
 <BSDataTable FetchItems="FetchPositions" Context="pos" PaginationBottom="false">
@@ -22,18 +26,22 @@
     </Body>
 </BSDataTable>
 <BSModal DataId="modalPareigos" OnShow="@(() => {_modelP = new Pareigos();})">
-    <BSForm Model="_modelP" OnSubmit="AddPareigos">
+    <BSForm Model="_modelP" OnValidSubmit="AddPareigos">
         <BSModalHeader>Naujų pareigų forma</BSModalHeader>
         <BSModalContent>
-            <div class="mb-3">
-                <BSLabel>Pareigos</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelP.Pavadinimas" />
-            </div>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Pareigos</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelP.Pavadinimas"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalPareigos">Atšaukti</BSButton>
             <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti pareigas</BSButton>
         </BSModalFooter>
+
     </BSForm>
 </BSModal>
 
@@ -54,8 +62,8 @@
     </BSDataTableRow>
     </Body>
 </BSDataTable>
-<h3>Darbuotojai</h3>
 
+<h3>Darbuotojai</h3>
 <BSButton Target="modalDarbuotojas" OnClick="@(() => { _modelW = new Darbuotojas();})" Size="Size.Medium" Color="BSColor.Primary">Pridėti darbuotoją</BSButton>
 <BSButton Target="modalAlgosPriedas" Size="Size.Medium" Color="BSColor.Primary">Skaičiuoti algos priedą</BSButton>
 <BSDataTable FetchItems="FetchWorkers" Context="d" PaginationBottom="false">
@@ -89,35 +97,40 @@
                                                         _workers = WorkerSelection().Result;
                                                        
                                             })">
-    <BSForm Model="_modelW" OnSubmit="AddAlgosPriedas">
+    <BSForm Model="_modelW" OnValidSubmit="AddAlgosPriedas">
+        
         <BSModalHeader>Naujo algos priedo kurimas</BSModalHeader>
         <BSModalContent>
-            <div class="mb-3">
-                <BSLabel>Skyrius</BSLabel>
-                <BSInput InputType="InputType.Select" @bind-Value="_modelB.FkDarbuotojasidDarbuotojas">
-                    @for(int i=0; i < _workers.Count; i++)
-                    {
-                        <option value="@_workers[i].IdDarbuotojas">
-                            @_workers[i].Vardas
-                        </option>
-                       
-                    }
-                </BSInput>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Pavadinimas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelB.Pavadinimas"/>
-            </div>
-            
-            
-            <div class="mb-3">
-                <BSLabel>Data</BSLabel>
-                <BSInput InputType="InputType.Date" @bind-Value="_modelB.Data"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Aparasymas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelB.Aprasymas"/>
-            </div>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Skyrius</BSLabel>
+
+                    <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelB.FkDarbuotojasidDarbuotojas">
+                        @for (int i = 0; i < _workers.Count; i++)
+                        {
+                            <option value="@_workers[i].IdDarbuotojas">
+                                @_workers[i].Vardas
+                            </option>
+
+                        }
+                    </BSInput>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Pavadinimas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelB.Pavadinimas"/>
+                </div>
+
+
+                <div class="mb-3">
+                    <BSLabel>Data</BSLabel>
+                    <BSInput InputType="InputType.Date" ValidateOnInput="true" @bind-Value="_modelB.Data"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Aparasymas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelB.Aprasymas"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalAlgosPriedas">Atšaukti</BSButton>
@@ -130,58 +143,62 @@
                                                        _deparments = DepartmentSelection().Result;
                                                        _positions = PositonSelection().Result;
                                            })">
-    <BSForm Model="_modelW" OnSubmit="AddDarbuotojas">
+    <BSForm Model="_modelW" OnValidSubmit="AddDarbuotojas">
         <BSModalHeader>Naujo darbuotojo forma</BSModalHeader>
         <BSModalContent>
-            <div class="mb-3">
-                <BSLabel>Skyrius</BSLabel>
-                <BSInput InputType="InputType.Select" @bind-Value="_modelW.FkSkyriusidSkyrius">
-                    @for(int i=0; i < _deparments.Count; i++)
-                    {
-                        var d = _deparments[i];
-                        string skyrius = GetWarehouseString(d.FkSandelisidSandelis).Result;
-                        skyrius += " - " + d.Pavadinimas;
-                        <option value="@d.IdSkyrius">
-                            @skyrius
-                        </option>
-                    }
-                </BSInput>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Pareigos</BSLabel>
-                <BSInput InputType="InputType.Select" @bind-Value="_modelW.FkPareigosidPareigos">
-                    @for(int i=0; i < _positions.Count; i++)
-                    {
-                        <option value="@_positions[i].IdPareigos">
-                            @_positions[i].Pavadinimas
-                        </option>
-                    }
-                </BSInput>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Prisijungimo vardas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.PrisijungimoVardas"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Slaptažodis</BSLabel>
-                <BSInput InputType="InputType.Password" @bind-Value="_modelW.Slaptazodis"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Kodas</BSLabel>
-                <BSInput InputType="InputType.Number" @bind-Value="_modelW.Kodas"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Vardas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Vardas"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Pavardė</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Pavarde"/>
-            </div>
-            <div class="mb-3">
-                <BSLabel>Valandinis uždarbis</BSLabel>
-                <BSInput InputType="InputType.Number" @bind-Value="_modelW.ValandinisUzdarbis"/>
-            </div>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Skyrius</BSLabel>
+                    <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelW.FkSkyriusidSkyrius">
+                        @for (int i = 0; i < _deparments.Count; i++)
+                        {
+                            var d = _deparments[i];
+                            string skyrius = GetWarehouseString(d.FkSandelisidSandelis).Result;
+                            skyrius += " - " + d.Pavadinimas;
+                            <option value="@d.IdSkyrius">
+                                @skyrius
+                            </option>
+                        }
+                    </BSInput>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Pareigos</BSLabel>
+                    <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelW.FkPareigosidPareigos">
+                        @for (int i = 0; i < _positions.Count; i++)
+                        {
+                            <option value="@_positions[i].IdPareigos">
+                                @_positions[i].Pavadinimas
+                            </option>
+                        }
+                    </BSInput>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Prisijungimo vardas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.PrisijungimoVardas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Slaptažodis</BSLabel>
+                    <DataAnnotationsValidator/>
+                    <BSInput InputType="InputType.Password" ValidateOnInput="true" @bind-Value="_modelW.Slaptazodis"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Kodas</BSLabel>
+                    <BSInput InputType="InputType.Number" ValidateOnInput="true" @bind-Value="_modelW.Kodas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Vardas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.Vardas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Pavardė</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelW.Pavarde"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Valandinis uždarbis</BSLabel>
+                    <BSInput InputType="InputType.Number" ValidateOnInput="true" @bind-Value="_modelW.ValandinisUzdarbis"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalDarbuotojas">Atšaukti</BSButton>
@@ -194,6 +211,7 @@
 
 
 @code {
+    
     private List<Skyrius> _deparments = new List<Skyrius>();
     private List<Darbuotojas> _workers = new List<Darbuotojas>();
     private List<Pareigos> _positions = new List<Pareigos>();
@@ -201,6 +219,7 @@
     private Pareigos _modelP = new Pareigos();
     private Algospriedas _modelB = new Algospriedas();
     private bool _isAdd = true;
+    
 
     private Task RemoveDarbuotojas(int id)
     {
@@ -324,10 +343,14 @@
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         await pgContext.Pareigos.AddAsync(_modelP);
         pgContext.SaveChanges();
-    // worst way to "refresh" table
+        
         BlazorStrap.ForwardClick("modalPareigos");
         NavManager.NavigateTo("/workermanagement", true);
+        
+        
     }
+    
+    
 
     #endregion
 

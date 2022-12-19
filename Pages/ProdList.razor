@@ -7,7 +7,48 @@
 @using StatybaServer.Data
 @using System.Net.Http.Headers;
 @inject HttpClient Http
+@using System.ComponentModel.DataAnnotations
 
+<h3>Zyma</h3>
+<BSButton Target="modalZyma" OnClick="@(() => { _modelZ = new Zyma();})"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti zyma</BSButton>
+<BSDataTable FetchItems="FetchZymas" Context="z" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Zyma" Column="@(nameof(Zyma.IdZyma))">ID</BSDataTableHead>
+        <BSDataTableHead TValue="Zyma" Column="@(nameof(Zyma.Pavadinimas))">Pavadinimas</BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@z.IdZyma</BSTD>
+        <BSTD>@z.Pavadinimas</BSTD>
+
+        <BSTD>
+            <BSButton OnClick="@(() => {RemoveZyma(@z.IdZyma);})"
+                      Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton Target="modalZyma" OnClick="@(() => {_modelZ = @z; _isAdd=false;})"
+                      Size="Size.Small" Color="BSColor.Secondary">Redaguoti</BSButton>
+        </BSTD>
+    </BSDataTableRow>
+    </Body>
+</BSDataTable>
+
+<BSModal DataId="modalZyma">
+    <BSForm Model="_modelZ" OnSubmit="AddZyma">
+        <BSModalHeader>Naujos prekės forma</BSModalHeader>
+        <BSModalContent>
+           
+            <div class="mb-3">
+                <BSLabel>Pavadinimas</BSLabel>
+                <BSInput InputType="InputType.Text" @bind-Value="_modelZ.Pavadinimas"/>
+            </div>
+            
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalZyma">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Pridėti zyma</BSButton>
+        </BSModalFooter>
+    </BSForm>
+</BSModal>
 
 <h3>Prekės</h3>
 <BSButton Target="modalPreke" OnClick="@(() => { _modelW = new Preke();})"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti prekę</BSButton>
@@ -45,14 +86,16 @@
     </Body>
 </BSDataTable>
 
-<BSModal DataId="modalPreke">
-    <BSForm Model="_modelW" OnSubmit="AddPreke">
+
+<BSModal DataId="modalPreke" OnShow="@(() => {_zymos = DepartmentSelection().Result;
+                                     })">
+    <BSForm Model="_modelW" OnSubmit="AddPreke ">
         <BSModalHeader>Naujos prekės forma</BSModalHeader>
         <BSModalContent>
            
             <div class="mb-3">
                 <BSLabel>Pavadinimas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Pavadinimas" />
+                <BSInput InputType="InputType.Text" @bind-Value="_modelW.Pavadinimas"/>
             </div>
             <div class="mb-3">
                 <BSLabel>Kategorija</BSLabel>
@@ -78,6 +121,20 @@
             <div class="mb-3">
                 <InputFile OnChange="@OnInputFileChange" single />
             </div>
+            <div class="mb-3">
+                <BSLabel>Zyma</BSLabel>
+                <BSInput InputType="InputType.Select" @bind-Value="_modelP.FkZymaidZyma">
+                    @for (int i = 0; i < _zymos.Count; i++)
+                    {
+                        <option value="@_zymos[i].IdZyma">
+                            @_zymos[i].Pavadinimas
+                        </option>
+                    }
+
+                </BSInput>
+            </div>
+            
+            
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalPreke">Atšaukti</BSButton>
@@ -92,7 +149,10 @@
 @code {
     private List<Skyrius> _deparments = new List<Skyrius>();
     private List<Pareigos> _positions = new List<Pareigos>();
+    private List<Zyma> _zymos = new List<Zyma>();
     private Preke _modelW = new Preke();
+    private Zyma _modelZ = new Zyma();
+    private Priskiriama _modelP = new Priskiriama();
     private bool _isAdd = true;
 
     private int maxAllowedFiles = 1;
@@ -116,6 +176,13 @@
     }
 
     
+    private async Task<List<Zyma>> DepartmentSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Zymas.ToList();
+
+        return await Task.FromResult(departments);
+    }
 
     private Task RemovePreke(int id)
     {
@@ -130,14 +197,74 @@
         NavManager.NavigateTo("/prodList", true);
         return Task.CompletedTask;
     }
+    
+    private Task RemoveZyma(int id)
+    {
+    // Deletes worker
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var prekes = pgContext.Zymas.First(d => d.IdZyma == id);
 
+        pgContext.Zymas.Remove(prekes);
+
+        pgContext.SaveChanges();
+
+        NavManager.NavigateTo("/prodList", true);
+        return Task.CompletedTask;
+    }
+
+    
+    private async Task<string> GetWarehouseString(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Zyma sand = pgContext.Zymas.Where(s => s.IdZyma == id).First();
+        string warehouse = $"{sand.Pavadinimas}";
+        return await Task.FromResult(warehouse);
+    }
     #region Add
-    private async Task AddPreke()
+    private async Task AddZyma()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         if(_isAdd)
         {
 
+
+            
+            await pgContext.Zymas.AddAsync(_modelZ);
+            pgContext.SaveChanges();
+
+            BlazorStrap.ForwardClick("modalZyma");
+            NavManager.NavigateTo("/prodList", true);
+        }
+        else
+        {
+            await Task.CompletedTask;
+            pgContext.Entry(_modelZ).State = EntityState.Modified;
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("modalZyma");
+            NavManager.NavigateTo("/prodList", true);
+        }
+
+    }
+    
+    private async Task AddPriskiarema()
+    {
+            using PostgresContext pgContext = ContextFactory.CreateDbContext();
+
+
+             await pgContext.Priskiriamas.AddAsync(_modelP);
+            pgContext.SaveChanges();
+
+            BlazorStrap.ForwardClick("modalZyma");
+            NavManager.NavigateTo("/prodList", true);
+
+
+    }
+    
+    private async Task AddPreke()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        if(_isAdd)
+        {
 
             
             await pgContext.Prekes.AddAsync(_modelW);
@@ -148,6 +275,8 @@
         }
         else
         {
+            _modelP.FkPrekeidPreke = _modelW.IdPreke;
+            await pgContext.Priskiriamas.AddAsync(_modelP);
             await Task.CompletedTask;
             pgContext.Entry(_modelW).State = EntityState.Modified;
             pgContext.SaveChanges();
@@ -159,7 +288,7 @@
 
     #endregion
 
-    #region Fetch
+ 
 
     private async Task<(IEnumerable<Preke>, int)> FetchPrekes(DataRequest dataRequest)
     {
@@ -169,7 +298,6 @@
 
         return await Task.FromResult((data, count));
     }
-    #endregion
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
 	{
@@ -206,5 +334,15 @@
 		}
 		return _modelW.Nuotrauka;
 	}
+
+    
+    private async Task<(IEnumerable<Zyma>, int)> FetchZymas(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Zymas.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
     
 }
