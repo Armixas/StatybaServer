@@ -1,6 +1,7 @@
 ﻿@page "/product/{id:int}"
 
 @inject IViewProduct viewProduct
+@inject ICart Cart
 
 
 <section class="py-5">
@@ -14,12 +15,12 @@
                 
                 <h1 class="display-5 fw-bolder">@preke.Pavadinimas</h1>
                 <div class="fs-5 mb-5">
-                    <span>€@preke.VienetoKaina.ToString()</span>
+                    <span>@preke.VienetoKaina.ToString() €</span>
                     
                 </div>
                 <p class="lead">@preke.Aprasymas</p>
                 <div class="d-flex">
-                    <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                    <button class="btn btn-outline-dark flex-shrink-0" type="button" @onclick="@(() => { Add(preke);})">
                         <i class="bi-cart-fill me-1"></i>
                         Į krepšelį
                     </button>
@@ -44,4 +45,10 @@
 		if (Id > 0)
 			preke = viewProduct.Execute(Id);
 	}
+
+    private async Task Add(Preke preke)
+    {
+        Cart.Add(preke);
+        await Task.CompletedTask;
+    }
 }
