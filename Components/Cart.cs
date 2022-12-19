@@ -10,11 +10,14 @@ namespace StatybaServer.Components
 
         public void Add(Preke preke)
         {
-            var obj = prekes.FirstOrDefault(x => x.IdPreke == preke.IdPreke);
+            int count = GetPrekeCount(preke.IdPreke);
 
-            prekes.Add(preke);
+            if(count < preke.Kiekis)
+            {
+                prekes.Add(preke);
 
-            prekesDistinct = prekes.GroupBy(x => x.IdPreke).Select(x => x.First()).ToList();
+                prekesDistinct = prekes.GroupBy(x => x.IdPreke).Select(x => x.First()).ToList();
+            }
         }
 
         public int GetCount()
@@ -46,9 +49,10 @@ namespace StatybaServer.Components
         {
             var obj = prekes.FirstOrDefault(x => x.IdPreke == id);
 
-            if(obj != null)
+
+            if (obj != null)
             {
-                prekes.Add(obj);
+                Add(obj);
             }
         }
 
