@@ -8,39 +8,34 @@
 @using Microsoft.EntityFrameworkCore
 @using StatybaServer.Data
 
-
-<h3>pyfaardas</h3>
-
-@Cart.GetCount()
-
 <section class="py-5">
-<div class="container px-4 px-lg-5 mt-5">
-<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
 
-@foreach (Preke p in _prekes)
-    {
-        
-        <div class="col-4">
-            <BSCard CardType="CardType.Card">
+            @foreach (Preke p in _prekes)
+            {
 
-                <BSCard CardType="CardType.Body">
-                    <BSCard CardType="CardType.Image" src=@p.Nuotrauka alt="Card image cap"/>
-                    <BSCard CardType="CardType.Title">@p.Pavadinimas</BSCard>
-                    <BSCard CardType="CardType.Text">
-                        @p.Aprasymas
-                        <h2>@p.VienetoKaina$</h2>
+                <div class="col-4">
+                    <BSCard CardType="CardType.Card">
+
+                        <BSCard CardType="CardType.Body">
+                            <BSCard CardType="CardType.Image" src=@p.Nuotrauka alt="Card image cap" />
+                            <BSCard CardType="CardType.Title">@p.Pavadinimas</BSCard>
+                            <BSCard CardType="CardType.Text">
+                                @p.Aprasymas
+                                <h2>@p.VienetoKaina €</h2>
+                            </BSCard>
+                            <BSButton Color="BSColor.Primary"><a class="text-light" href="/product/@p.IdPreke">Perziureti</a></BSButton>
+                        </BSCard>
                     </BSCard>
-                            <BSButton OnClick="@(() => { Add();})" Color="BSColor.Primary"><a class="text-light" href="/product/@p.IdPreke">Perziureti</a></BSButton>
-                </BSCard>
-            </BSCard>
-        </div>
-        
-    }
-</div>
-    </div>
-    </section> 
+                </div>
 
-   
+            }
+        </div>
+    </div>
+</section>
+
+
 
 
 
@@ -80,9 +75,9 @@
         return await Task.FromResult((data, count));
     }
 
-    private async Task Add()
+    private async Task Add(Preke preke)
     {
-        Cart.Add();
+        Cart.Add(preke);
         await Task.CompletedTask;
     }
 
