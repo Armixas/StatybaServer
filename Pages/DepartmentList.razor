@@ -1,7 +1,6 @@
 ﻿@page "/departmentlist"
 @using StatybaServer.Models
 @using Microsoft.EntityFrameworkCore
-@attribute [Authorize(Roles = "Administratorius")]
 @inject IBlazorStrap BlazorStrap
 @inject NavigationManager NavManager
 @inject IDbContextFactory<PostgresContext> ContextFactory;

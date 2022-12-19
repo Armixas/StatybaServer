@@ -9,8 +9,8 @@
 @inject HttpClient Http
 @using System.ComponentModel.DataAnnotations
 
-<h3>Zyma</h3>
-<BSButton Target="modalZyma" OnClick="@(() => { _modelZ = new Zyma();})"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti zyma</BSButton>
+<h3>Žyma</h3>
+<BSButton Target="modalZyma" OnClick="@(() => { _modelZ = new Zyma();})"  Size="Size.Medium" Color="BSColor.Primary" >Pridėti žyma</BSButton>
 <BSDataTable FetchItems="FetchZymas" Context="z" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Zyma" Column="@(nameof(Zyma.IdZyma))">ID</BSDataTableHead>
@@ -34,7 +34,7 @@
 
 <BSModal DataId="modalZyma">
     <BSForm Model="_modelZ" OnSubmit="AddZyma">
-        <BSModalHeader>Naujos prekės forma</BSModalHeader>
+        <BSModalHeader>Naujos žymos forma</BSModalHeader>
         <BSModalContent>
            
             <div class="mb-3">
@@ -45,7 +45,7 @@
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalZyma">Atšaukti</BSButton>
-            <BSButton IsSubmit="true" Color="BSColor.Primary">Pridėti zyma</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Pridėti žymą</BSButton>
         </BSModalFooter>
     </BSForm>
 </BSModal>
@@ -87,7 +87,7 @@
 </BSDataTable>
 
 
-<BSModal DataId="modalPreke" OnShow="@(() => {_zymos = DepartmentSelection().Result;
+<BSModal DataId="modalPreke" OnShow="@(() => {_zymos = DepartmentSelection().Result; _sandeliai = SandeliaiSelection().Result;
                                      })">
     <BSForm Model="_modelW" OnSubmit="AddPreke ">
         <BSModalHeader>Naujos prekės forma</BSModalHeader>
@@ -122,8 +122,8 @@
                 <InputFile OnChange="@OnInputFileChange" single />
             </div>
             <div class="mb-3">
-                <BSLabel>Zyma</BSLabel>
-                <BSInput InputType="InputType.Select" @bind-Value="_modelP.FkZymaidZyma">
+                <BSLabel>Žyma</BSLabel>
+                <BSInput InputType="InputType.Select" @bind-Value="_selectedZym">
                     @for (int i = 0; i < _zymos.Count; i++)
                     {
                         <option value="@_zymos[i].IdZyma">
@@ -133,15 +133,30 @@
 
                 </BSInput>
             </div>
+             <div class="mb-3">
+                 <BSLabel>Sandėlis</BSLabel>
+            
+                 
+                <BSInput InputType="InputType.Select" @bind-Value="_selectedSand" size="1">
+                 @for (int i = 0; i < _sandeliai.Count; i++)
+                {
+                        <option value="@_sandeliai[i].IdSandelis">@_sandeliai[i].Adresas</option>
+                }
+                
+                </BSInput>
+                 
+             </div>
             
             
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalPreke">Atšaukti</BSButton>
-            <BSButton OnClick="@(() => { _modelW.Nuotrauka = @GetStoredFileName(fileNames[0]);})" IsSubmit="true" Color="BSColor.Primary">Pridėti prekę</BSButton>
+            <BSButton OnClick="@(() => {@AddZymos(); @AddTuri(); _modelW.Nuotrauka =  @GetStoredFileName(fileNames[0]); })" IsSubmit="true" Color="BSColor.Primary">Pridėti prekę</BSButton>
         </BSModalFooter>
     </BSForm>
 </BSModal>
+
+
 
 
 
@@ -150,15 +165,18 @@
     private List<Skyrius> _deparments = new List<Skyrius>();
     private List<Pareigos> _positions = new List<Pareigos>();
     private List<Zyma> _zymos = new List<Zyma>();
+    private List<Sandelis> _sandeliai = new List<Sandelis>();
+    private int[] _selectedSand = new int[] { };
+    private int[] _selectedZym = new int[] { };
     private Preke _modelW = new Preke();
     private Zyma _modelZ = new Zyma();
     private Priskiriama _modelP = new Priskiriama();
     private bool _isAdd = true;
 
     private int maxAllowedFiles = 1;
-	private long maxFileSize = long.MaxValue;
-	private List<string> fileNames = new();
-	private List<UploadResult> uploadResults = new();
+    private long maxFileSize = long.MaxValue;
+    private List<string> fileNames = new();
+    private List<UploadResult> uploadResults = new();
 
     private ModalClass Modal { get; set; } = new ModalClass();
 
@@ -175,7 +193,40 @@
         public bool? HasFile { get; set; }
     }
 
-    
+    private void AddTuri()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var prekes = pgContext.Prekes.ToList();
+        int lastId = prekes[prekes.Count - 1].IdPreke;
+        for(int aa = 0; aa < _selectedSand.Length; aa++)
+        {
+            Turi turi = new Turi();
+            turi.FkPrekeidPreke = lastId+1;
+            turi.FkSandelisidSandelis = _selectedSand[aa];
+
+            pgContext.Turis.AddAsync(turi);
+            pgContext.SaveChanges();
+        }
+
+    }
+
+    private void AddZymos()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var prekes = pgContext.Prekes.ToList();
+        int lastId = prekes[prekes.Count - 1].IdPreke;
+        for (int aa = 0; aa < _selectedZym.Length; aa++)
+        {
+            Priskiriama turi = new Priskiriama();
+            turi.FkPrekeidPreke = lastId;
+            turi.FkZymaidZyma = _selectedZym[aa];
+
+            pgContext.Priskiriamas.AddAsync(turi);
+            pgContext.SaveChanges();
+        }
+    }
+
+
     private async Task<List<Zyma>> DepartmentSelection()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
@@ -197,10 +248,10 @@
         NavManager.NavigateTo("/prodList", true);
         return Task.CompletedTask;
     }
-    
+
     private Task RemoveZyma(int id)
     {
-    // Deletes worker
+        // Deletes worker
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         var prekes = pgContext.Zymas.First(d => d.IdZyma == id);
 
@@ -212,7 +263,7 @@
         return Task.CompletedTask;
     }
 
-    
+
     private async Task<string> GetWarehouseString(int id)
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
@@ -228,7 +279,7 @@
         {
 
 
-            
+
             await pgContext.Zymas.AddAsync(_modelZ);
             pgContext.SaveChanges();
 
@@ -245,28 +296,28 @@
         }
 
     }
-    
+
     private async Task AddPriskiarema()
     {
-            using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
 
 
-             await pgContext.Priskiriamas.AddAsync(_modelP);
-            pgContext.SaveChanges();
+        await pgContext.Priskiriamas.AddAsync(_modelP);
+        pgContext.SaveChanges();
 
-            BlazorStrap.ForwardClick("modalZyma");
-            NavManager.NavigateTo("/prodList", true);
+        BlazorStrap.ForwardClick("modalZyma");
+        NavManager.NavigateTo("/prodList", true);
 
 
     }
-    
+
     private async Task AddPreke()
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         if(_isAdd)
         {
 
-            
+
             await pgContext.Prekes.AddAsync(_modelW);
             pgContext.SaveChanges();
 
@@ -288,7 +339,7 @@
 
     #endregion
 
- 
+
 
     private async Task<(IEnumerable<Preke>, int)> FetchPrekes(DataRequest dataRequest)
     {
@@ -300,39 +351,39 @@
     }
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
-	{
-		using var content = new MultipartFormDataContent();
+    {
+        using var content = new MultipartFormDataContent();
 
-		foreach(var file in e.GetMultipleFiles(maxAllowedFiles))
-		{
-			var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
-			fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+        foreach(var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
 
-			fileNames.Add(file.Name);
+            fileNames.Add(file.Name);
 
-			content.Add(
-				content: fileContent,
-				name: "\"files\"",
-				fileName: file.Name);
-		}
+            content.Add(
+                content: fileContent,
+                name: "\"files\"",
+                fileName: file.Name);
+        }
 
-		var response = await Http.PostAsync("https://localhost:44306/api/File", content);
-		var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
+        var response = await Http.PostAsync("https://localhost:44306/api/File", content);
+        var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
 
-		if(newUploadResults is not null)
-		{
-			uploadResults = uploadResults.Concat(newUploadResults).ToList();
-		}
-	}
+        if(newUploadResults is not null)
+        {
+            uploadResults = uploadResults.Concat(newUploadResults).ToList();
+        }
+    }
 
     private string? GetStoredFileName(string fileName)
-	{
-		var uploadResult = uploadResults.SingleOrDefault(f => f.FileName == fileName);
-		if(uploadResult is not null)
-		{
-			return  "uploads/" + uploadResult.StoredFileName;
-		}
-		return _modelW.Nuotrauka;
+    {
+        var uploadResult = uploadResults.SingleOrDefault(f => f.FileName == fileName);
+        if(uploadResult is not null)
+        {
+            return  "uploads/" + uploadResult.StoredFileName;
+        }
+        return _modelW.Nuotrauka;
 	}
 
     
@@ -343,6 +394,15 @@
         var count = data.Count();
 
         return await Task.FromResult((data, count));
+    }
+
+   
+    private async Task<List<Sandelis>> SandeliaiSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Sandelis.ToList();
+
+        return await Task.FromResult(departments);
     }
     
 }
