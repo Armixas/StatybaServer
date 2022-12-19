@@ -9,10 +9,10 @@
 @using System.ComponentModel.DataAnnotations
 
 
-<h3>Uzsakymai</h3>
+<h3>Užsakymai</h3>
 
-<BSButton Target="modalUzsakymas" Size="Size.Medium" Color="BSColor.Primary">Prideti užsakymą kaip fizinis asmuo</BSButton>
-<BSButton Target="modalUzsakymasImon" Size="Size.Medium" Color="BSColor.Primary">Prideti užsakymą kaip juridinis asmuo</BSButton>
+<BSButton Target="modalUzsakymas" Size="Size.Medium" Color="BSColor.Primary">Pridėti užsakymą kaip fizinis asmuo</BSButton>
+<BSButton Target="modalUzsakymasImon" Size="Size.Medium" Color="BSColor.Primary">Pridėti užsakymą kaip juridinis asmuo</BSButton>
 <BSDataTable FetchItems="FetchUzsakymai" Context="u" PaginationBottom="false">
     <Header>
         <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.IdUzsakymas))">ID</BSDataTableHead>
@@ -106,7 +106,7 @@
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalUzsakymas">Atšaukti</BSButton>
-            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti užsakyma</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti užsakymą</BSButton>
         </BSModalFooter>
 
     </BSForm>
@@ -185,7 +185,7 @@
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalUzsakymasImon">Atšaukti</BSButton>
-            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti užsakyma</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti užsakymą</BSButton>
         </BSModalFooter>
 
     </BSForm>
