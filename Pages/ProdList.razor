@@ -36,12 +36,13 @@
     <BSForm Model="_modelZ" OnSubmit="AddZyma">
         <BSModalHeader>Naujos žymos forma</BSModalHeader>
         <BSModalContent>
-           
-            <div class="mb-3">
-                <BSLabel>Pavadinimas</BSLabel>
-                <BSInput InputType="InputType.Text" @bind-Value="_modelZ.Pavadinimas"/>
-            </div>
-            
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Pavadinimas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelZ.Pavadinimas"/>
+                </div>
+            </BSFrom>
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalZyma">Atšaukti</BSButton>
@@ -89,7 +90,7 @@
 
 <BSModal DataId="modalPreke" OnShow="@(() => {_zymos = DepartmentSelection().Result; _sandeliai = SandeliaiSelection().Result;
                                      })">
-    <BSForm Model="_modelW" OnSubmit="AddPreke ">
+    <BSForm Model="_modelW" OnValidSubmit="AddPreke ">
         <BSModalHeader>Naujos prekės forma</BSModalHeader>
         <BSModalContent>
            

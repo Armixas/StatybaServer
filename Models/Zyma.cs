@@ -1,7 +1,8 @@
 ﻿namespace StatybaServer.Models;
-
+using System.ComponentModel.DataAnnotations;
 public class Zyma
 {
+    [Required(ErrorMessage = "Privalomas laukas")]
     public string? Pavadinimas { get; set; }
 
     public int IdZyma { get; set; }

@@ -1,16 +1,431 @@
 ﻿@page "/orders"
-<PageTitle>Užsakymai</PageTitle>
-<body id="page-top">
-<!-- Section-->
-<h1>Užsakymai</h1>
-<p role="status">Current count: @currentCount</p>
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@inject IBlazorStrap BlazorStrap
+@inject NavigationManager NavManager
+@inject IDbContextFactory<PostgresContext> ContextFactory;
 
-	@code {
-		private int currentCount = 0;
-		private void IncrementCount()
-		{
-			currentCount++;
-		}
+@using StatybaServer.Models
+@using Microsoft.EntityFrameworkCore
+@using StatybaServer.Data
+@using System.ComponentModel.DataAnnotations
+
+
+<h3>Uzsakymai</h3>
+
+<BSButton Target="modalUzsakymas" Size="Size.Medium" Color="BSColor.Primary">Prideti užsakymą kaip fizinis asmuo</BSButton>
+<BSButton Target="modalUzsakymasImon" Size="Size.Medium" Color="BSColor.Primary">Prideti užsakymą kaip juridinis asmuo</BSButton>
+<BSDataTable FetchItems="FetchUzsakymai" Context="u" PaginationBottom="false">
+    <Header>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.IdUzsakymas))">ID</BSDataTableHead>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.Data))">Data</BSDataTableHead>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.Adresas))">Adresas</BSDataTableHead>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.Atsiemimas))">Atsiemimas</BSDataTableHead>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.Atsiskaitymas))">Atsiskaitymas</BSDataTableHead>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.Statusas))">Statusas</BSDataTableHead>
+        <BSDataTableHead TValue="Uzsakymas" Column="@(nameof(Uzsakymas.Kaina))">Kaina</BSDataTableHead>
+        <BSDataTableHead TValue="BSTD">Redagavimas</BSDataTableHead>
+
+    </Header>
+    <Body>
+    <BSDataTableRow>
+        <BSTD>@u.IdUzsakymas</BSTD>
+        <BSTD>@u.Data</BSTD>
+        <BSTD>@u.Adresas</BSTD>
+        <BSTD>@GetAtsiemimoData(u.Atsiemimas).Result</BSTD>
+        <BSTD>@GetAtsiskaitymoData(u.Atsiskaitymas).Result</BSTD>
+        <BSTD>@GetStatusoData(u.Statusas).Result</BSTD>
+        <BSTD>@u.Kaina</BSTD>
+        <BSTD>
+            
+            <BSButton OnClick="@(() => { RemoveUzsakymas(@u.IdUzsakymas); })"
+                      Size="Size.Small" Color="BSColor.Danger">Ištrinti</BSButton>
+            <BSButton Target="modalUzsakymas" OnClick="@(() => {_modelUz = @u; _isAdd = false;})"
+                      Size="Size.Small" Color="BSColor.Secondary">Redaguoti kaip fizinis asmuo</BSButton>
+             <BSButton Target="modalUzsakymasImon" OnClick="@(() => {_modelUz = @u; _isAdd = false;})"
+                                  Size="Size.Small" Color="BSColor.Secondary">Redaguoti kaip juridinis asmuo</BSButton>
+        </BSTD>
+        
+    </BSDataTableRow>
+    </Body>
+</BSDataTable>
+
+<BSModal DataId="modalUzsakymas" OnShow="@(() => {_modelUz = new Uzsakymas();
+                                                     _atsiemimas = AtsiemimasSelection().Result;
+                                                     _atsiskaitymas = AtsiskaitymasSelection().Result;})">
+    <BSForm Model="_modelUz" OnValidSubmit="AddUzsakymas">
+        <BSModalHeader>Naujo užsakymo forma</BSModalHeader>
+        <BSModalContent>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Salis</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Salis"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Miestas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Miestas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Pašto kodas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.PastoKodas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Adresas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Adresas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Telefonas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Telefonas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>El. Paštas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Pastas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Papildoma informacija</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.PapildomaInformacija"/>
+                </div>
+                <BSLabel>Atsiemimo būdas</BSLabel>
+                <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelUz.Atsiemimas">
+                    @for (int i = 0; i < _atsiemimas.Count; i++)
+                    {
+                        <option value="@_atsiemimas[i].IdAtsiemimas">
+                            @_atsiemimas[i].Name
+                        </option>
+                    }
+                </BSInput>
+                <BSLabel>Atsiskaitymo būdas</BSLabel>
+                <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelUz.Atsiskaitymas">
+                    @for (int i = 0; i < _atsiskaitymas.Count; i++)
+                    {
+                        <option value="@_atsiskaitymas[i].IdAtsiskaitymas">
+                            @_atsiskaitymas[i].Name
+                        </option>
+                    }
+                </BSInput>
+            </BSFrom>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalUzsakymas">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti užsakyma</BSButton>
+        </BSModalFooter>
+
+    </BSForm>
+</BSModal>
+
+
+
+
+<BSModal DataId="modalUzsakymasImon" OnShow="@(() => {_modelUz = new Uzsakymas();
+                                                     _atsiemimas = AtsiemimasSelection().Result;
+                                                     _atsiskaitymas = AtsiskaitymasSelection().Result;})">
+    <BSForm Model="_modelUz" OnValidSubmit="AddUzsakymasImon">
+        <BSModalHeader>Naujo užsakymo forma</BSModalHeader>
+        <BSModalContent>
+            <BSFrom>
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <BSLabel>Salis</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Salis"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Miestas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Miestas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Pašto kodas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.PastoKodas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Adresas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Adresas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Telefonas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Telefonas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>El. Paštas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.Pastas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Papildoma informacija</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.PapildomaInformacija"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Imonės pavadinimas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.ImonesPavadinimas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Imonės kodas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.ImonesKodas"/>
+                </div>
+                <div class="mb-3">
+                    <BSLabel>Imonės Pvm Kodas</BSLabel>
+                    <BSInput InputType="InputType.Text" ValidateOnInput="true" @bind-Value="_modelUz.ImonesPvmKodas"/>
+                </div>
+                <BSLabel>Atsiemimo būdas</BSLabel>
+                <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelUz.Atsiemimas">
+                    @for (int i = 0; i < _atsiemimas.Count; i++)
+                    {
+                        <option value="@_atsiemimas[i].IdAtsiemimas">
+                            @_atsiemimas[i].Name
+                        </option>
+                    }
+                </BSInput>
+                <BSLabel>Atsiskaitymo būdas</BSLabel>
+                <BSInput InputType="InputType.Select" ValidateOnInput="true" @bind-Value="_modelUz.Atsiskaitymas">
+                    @for (int i = 0; i < _atsiskaitymas.Count; i++)
+                    {
+                        <option value="@_atsiskaitymas[i].IdAtsiskaitymas">
+                            @_atsiskaitymas[i].Name
+                        </option>
+                    }
+                </BSInput>
+            </BSFrom>
+        </BSModalContent>
+        <BSModalFooter>
+            <BSButton Target="modalUzsakymasImon">Atšaukti</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti užsakyma</BSButton>
+        </BSModalFooter>
+
+    </BSForm>
+</BSModal>
+
+
+
+
+
+
+
+
+@code {
+    
+    
+    private List<Atsiemimas> _atsiemimas = new List<Atsiemimas>();
+    private List<Atsiskaitymas> _atsiskaitymas = new List<Atsiskaitymas>();
+    private List<Asmuo> _asmuo = new List<Asmuo>();
+    private Uzsakymas _modelUz = new Uzsakymas();
+    private bool _isAdd = true;
+    
+
+    private Task RemoveUzsakymas(int id)
+    {
+        // Deletes worker
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var darbuotojas = pgContext.Uzsakymas.First(d => d.IdUzsakymas == id);
+
+        pgContext.Uzsakymas.Remove(darbuotojas);
+        
+        pgContext.SaveChanges();
+
+        NavManager.NavigateTo("/orders", true);
+        return Task.CompletedTask;
+    }
+
+    
+    #region Add
+
+    private async Task<string> GetWarehouseString(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Sandelis sand = pgContext.Sandelis.Where(s => s.IdSandelis == id).First();
+        string warehouse = $"{sand.Miestas}, {sand.Adresas}";
+        return await Task.FromResult(warehouse);
+    }
+    
+    private async Task<int> GetWorkersStazas(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Darbuotojas sand = pgContext.Darbuotojas.Where(s => s.IdDarbuotojas == id).First();
+        int warehouse = sand.Stazas;
+        return await Task.FromResult(warehouse);
+    }
+    
+    private async Task<decimal> GetWorkersValandinis(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Darbuotojas sand = pgContext.Darbuotojas.Where(s => s.IdDarbuotojas == id).First();
+        decimal warehouse = sand.ValandinisUzdarbis;
+        return await Task.FromResult(warehouse);
+    }
+    
+    
+
+    
+    
+    private async Task AddUzsakymas()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        if(_isAdd)
+        {
+
+       
+
+            _modelUz.Data = DateOnly.FromDateTime(DateTime.Now);
+            _modelUz.PristatymoData = DateOnly.FromDateTime(DateTime.Now);
+            _modelUz.Kaina = 13;
+            _modelUz.ImonesKodas = 0;
+            _modelUz.ImonesPavadinimas = " ";
+            _modelUz.ImonesPvmKodas = " ";
+            _modelUz.Asmuo = 1;
+            _modelUz.Statusas = 1;
+            _modelUz.FkKlientasidKlientas = 1;
+            _modelUz.FkPastomatasidPastomatas = 1;
+            
+
+            await pgContext.Uzsakymas.AddAsync(_modelUz);
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("modalUzsakymas");
+            NavManager.NavigateTo("/orders", true);
+        }
+        else
+        {
+            await Task.CompletedTask;
+            pgContext.Entry(_modelUz).State = EntityState.Modified;
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("modalUzsakymas");
+            NavManager.NavigateTo("/orders", true);
+        }
+
+
+    }
+    
+    private async Task AddUzsakymasImon()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        if(_isAdd)
+        {
+
+       
+
+            _modelUz.Data = DateOnly.FromDateTime(DateTime.Now);
+            _modelUz.PristatymoData = DateOnly.FromDateTime(DateTime.Now);
+            _modelUz.Kaina = 13;
+            _modelUz.Asmuo = 2;
+            _modelUz.Statusas = 1;
+            _modelUz.FkKlientasidKlientas = 1;
+            _modelUz.FkPastomatasidPastomatas = 1;
+                
+
+            await pgContext.Uzsakymas.AddAsync(_modelUz);
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("UzsakymasImon");
+            NavManager.NavigateTo("/orders", true);
+            
+        }
+        else
+        {
+            await Task.CompletedTask;
+            pgContext.Entry(_modelUz).State = EntityState.Modified;
+            pgContext.SaveChanges();
+            BlazorStrap.ForwardClick("UzsakymasImon");
+            NavManager.NavigateTo("/orders", true);
+        }   
+            
+        
+    }
+
+    
+    
+    
+    
+
+    #endregion
+
+    #region Fetch
+
+    private async Task<(IEnumerable<Darbuotojas>, int)> FetchWorkers(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Darbuotojas.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    
+    private async Task<(IEnumerable<Algospriedas>, int)> FetchAlgos(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Algospriedas.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    
+    private async Task<(IEnumerable<Uzsakymas>, int)> FetchUzsakymai(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Uzsakymas.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+    private async Task<(IEnumerable<Pareigos>, int)> FetchPositions(DataRequest dataRequest)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var data = pgContext.Pareigos.ToList();
+        var count = data.Count();
+
+        return await Task.FromResult((data, count));
+    }
+
+    #endregion
+
+    #region Selection
+
+    private async Task<List<Asmuo>> AsmuoSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var positions = pgContext.Asmuos.ToList();
+
+        return await Task.FromResult(positions);
+    }
+    private async Task<List<Atsiemimas>> AtsiemimasSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Atsiemimas.ToList();
+
+        return await Task.FromResult(departments);
+    }
+    private async Task<List<Atsiskaitymas>> AtsiskaitymasSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Atsiskaitymas.ToList();
+
+        return await Task.FromResult(departments);
+    }
+    
+    private async Task<List<Darbuotojas>> WorkerSelection()
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        var departments = pgContext.Darbuotojas.ToList();
+
+        return await Task.FromResult(departments);
+    }
+    
+    private async Task<string> GetAtsiemimoData(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Atsiemimas w = pgContext.Atsiemimas.First(s => s.IdAtsiemimas == id);
+        
+        return await Task.FromResult($"{w.Name}"); 
+    }
+    private async Task<string> GetAtsiskaitymoData(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Atsiskaitymas w = pgContext.Atsiskaitymas.First(s => s.IdAtsiskaitymas == id);
+        
+        return await Task.FromResult($"{w.Name}"); 
+    }
+    
+    private async Task<string> GetStatusoData(int id)
+    {
+        using PostgresContext pgContext = ContextFactory.CreateDbContext();
+        Statusas w = pgContext.Statusas.First(s => s.IdStatusas == id);
+        
+        return await Task.FromResult($"{w.Name}"); 
+    }
+
+    #endregion
+
 }
-</body>
