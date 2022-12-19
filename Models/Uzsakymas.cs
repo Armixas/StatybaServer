@@ -28,13 +28,13 @@ public class Uzsakymas
 
     public string? ImonesPvmKodas { get; set; }
 
-    public int? Statusas { get; set; }
+    public int Statusas { get; set; }
 
-    public int? Asmuo { get; set; }
+    public int Asmuo { get; set; }
 
-    public int? Atsiemimas { get; set; }
+    public int Atsiemimas { get; set; }
 
-    public int? Atsiskaitymas { get; set; }
+    public int Atsiskaitymas { get; set; }
 
     public int IdUzsakymas { get; set; }
 
@@ -42,17 +42,17 @@ public class Uzsakymas
 
     public int FkPastomatasidPastomatas { get; set; }
 
-    public virtual Asmuo? AsmuoNavigation { get; set; }
+    public virtual Asmuo AsmuoNavigation { get; set; }
 
-    public virtual Atsiemimas? AtsiemimasNavigation { get; set; }
+    public virtual Atsiemimas AtsiemimasNavigation { get; set; }
 
-    public virtual Atsiskaitymas? AtsiskaitymasNavigation { get; set; }
+    public virtual Atsiskaitymas AtsiskaitymasNavigation { get; set; }
 
     public virtual Klientas FkKlientasidKlientasNavigation { get; set; } = null!;
 
     public virtual Pastomatas FkPastomatasidPastomatasNavigation { get; set; } = null!;
 
-    public virtual Statusas? StatusasNavigation { get; set; }
+    public virtual Statusas StatusasNavigation { get; set; }
 
     public virtual ICollection<Uzsakymopreke> Uzsakymoprekes { get; } = new List<Uzsakymopreke>();
 }
