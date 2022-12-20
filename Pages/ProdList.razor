@@ -198,16 +198,20 @@
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         var prekes = pgContext.Prekes.ToList();
-        int lastId = prekes[prekes.Count - 1].IdPreke;
-        for(int aa = 0; aa < _selectedSand.Length; aa++)
+        if(prekes.Count > 0)
         {
-            Turi turi = new Turi();
-            turi.FkPrekeidPreke = lastId+1;
-            turi.FkSandelisidSandelis = _selectedSand[aa];
+            int lastId = prekes[prekes.Count - 1].IdPreke;
+            for (int aa = 0; aa < _selectedSand.Length; aa++)
+            {
+                Turi turi = new Turi();
+                turi.FkPrekeidPreke = lastId + 1;
+                turi.FkSandelisidSandelis = _selectedSand[aa];
 
-            pgContext.Turis.AddAsync(turi);
-            pgContext.SaveChanges();
+                pgContext.Turis.AddAsync(turi);
+                pgContext.SaveChanges();
+            }
         }
+
 
     }
 
@@ -215,16 +219,20 @@
     {
         using PostgresContext pgContext = ContextFactory.CreateDbContext();
         var prekes = pgContext.Prekes.ToList();
-        int lastId = prekes[prekes.Count - 1].IdPreke;
-        for (int aa = 0; aa < _selectedZym.Length; aa++)
+        if(prekes.Count > 0)
         {
-            Priskiriama turi = new Priskiriama();
-            turi.FkPrekeidPreke = lastId;
-            turi.FkZymaidZyma = _selectedZym[aa];
+            int lastId = prekes[prekes.Count - 1].IdPreke;
+            for (int aa = 0; aa < _selectedZym.Length; aa++)
+            {
+                Priskiriama turi = new Priskiriama();
+                turi.FkPrekeidPreke = lastId;
+                turi.FkZymaidZyma = _selectedZym[aa];
 
-            pgContext.Priskiriamas.AddAsync(turi);
-            pgContext.SaveChanges();
+                pgContext.Priskiriamas.AddAsync(turi);
+                pgContext.SaveChanges();
+            }
         }
+       
     }
 
 
