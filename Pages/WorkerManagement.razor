@@ -48,10 +48,10 @@
 <h3>Algos priedai</h3>
 <BSDataTable FetchItems="FetchAlgos" Context="b" PaginationBottom="false">
     <Header>
-        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Aprasymas))">Aprasymas</BSDataTableHead>
+        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Aprasymas))">Aprašymas</BSDataTableHead>
         <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Data))">Kada suteiktas algos priedas</BSDataTableHead>
         <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.Dydis))">Priedo dydis</BSDataTableHead>
-        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.FkDarbuotojasidDarbuotojas))">Darbuotojo vardas ir stazas</BSDataTableHead>
+        <BSDataTableHead TValue="Algospriedas" Column="@(nameof(Algospriedas.FkDarbuotojasidDarbuotojas))">Darbuotojo vardas ir stažas</BSDataTableHead>
     </Header>
     <Body>
     <BSDataTableRow>
@@ -99,7 +99,7 @@
                                             })">
     <BSForm Model="_modelW" OnValidSubmit="AddAlgosPriedas">
         
-        <BSModalHeader>Naujo algos priedo kurimas</BSModalHeader>
+        <BSModalHeader>Naujo algos priedo kūrimas</BSModalHeader>
         <BSModalContent>
             <BSFrom>
                 <DataAnnotationsValidator />
@@ -134,7 +134,7 @@
         </BSModalContent>
         <BSModalFooter>
             <BSButton Target="modalAlgosPriedas">Atšaukti</BSButton>
-            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti algos prieda</BSButton>
+            <BSButton IsSubmit="true" Color="BSColor.Primary">Sukurti algos priedą</BSButton>
         </BSModalFooter>
     </BSForm>
 </BSModal>
